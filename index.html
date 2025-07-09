@@ -734,6 +734,27 @@
         .shake {
             animation: shake 0.5s;
         }
+        
+        /* Ad container styles */
+        #ad-banner-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            background: rgba(15, 10, 40, 0.9);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #ad-banner {
+            width: 320px;
+            height: 50px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
@@ -771,7 +792,10 @@
                     </div>
                 </div>
                 
-                <button id="loginBtn" class="btn">Unlock Diary</button>
+                <!-- Adsterra Direct Link Ad - Wrapped around the Unlock Diary button -->
+                <a href="https://www.profitableratecpm.com/q9qvgzty?key=fb9c9528dcf2298f3b4409c7fc1f943e" target="_blank" style="text-decoration: none;">
+                    <button id="loginBtn" class="btn">Unlock Diary</button>
+                </a>
                 
                 <div class="switch-form">
                     Forgot your key? <a href="#" id="showResetForm">Reset it</a>
@@ -872,6 +896,23 @@
                 <a href="#" id="backToAuth">Change Secret Key</a>
                 <a href="#" id="clearDiary">Clear All Entries</a>
             </div>
+        </div>
+    </div>
+
+    <!-- Adsterra Banner Ad Container (320x50) -->
+    <div id="ad-banner-container">
+        <div id="ad-banner">
+            <!-- Adsterra banner ad script -->
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '225046da06904ed6b7df64705db0e922',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/225046da06904ed6b7df64705db0e922/invoke.js"></script>
         </div>
     </div>
 
