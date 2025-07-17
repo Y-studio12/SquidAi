@@ -3,1432 +3,981 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhispRoom - Your Private Sanctuary</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Courier+New:wght@400;700&display=swap" rel="stylesheet">
+    <title>Squid AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <style>
         :root {
-            --primary: #8a2be2;
-            --primary-dark: #5a189a;
-            --secondary: #ff6b6b;
-            --dark: #0f0c24;
-            --darker: #070518;
-            --light: #e0d6ff;
-            --text: #f8f7fc;
-            --glow: 0 0 15px rgba(138, 43, 226, 0.7);
-            --glow-secondary: 0 0 15px rgba(255, 107, 107, 0.5);
-            --sidebar-width: 280px;
+            --bg-dark: #0e0e10;
+            --primary: #9147ff;
+            --secondary: #1f1f23;
+            --text-light: #efeff1;
+            --accent: #00b5ad;
+            --border-radius: 16px;
+            --card-bg: #18181b;
+            --input-bg: #1f1f23;
+            --hover-light: rgba(255,255,255,0.1);
         }
         
+        body.light-mode {
+            --bg-dark: #f0f2f5;
+            --primary: #9147ff;
+            --secondary: #e4e6eb;
+            --text-light: #050505;
+            --accent: #00b5ad;
+            --card-bg: #ffffff;
+            --input-bg: #e4e6eb;
+            --hover-light: rgba(0,0,0,0.05);
+        }
+
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-        
+
         body {
-            background: linear-gradient(135deg, var(--darker), var(--dark));
-            color: var(--text);
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
         }
-        
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(255, 107, 107, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 50% 20%, rgba(138, 43, 226, 0.1) 0%, transparent 40%);
-            z-index: 0;
-            animation: fogAnimation 20s infinite alternate;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            height: 90vh;
-            position: relative;
-            z-index: 10;
+
+        /* Loader */
+        .loader-container {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
-        
-        .page {
-            background: rgba(15, 10, 40, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            box-shadow: var(--glow), 0 10px 30px rgba(0, 0, 0, 0.5);
+        .loader {
+            border: 5px solid var(--secondary);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Login Container */
+        .login-container {
+            display: none; /* Initially hidden */
+            width: 100%;
+            max-width: 400px;
             padding: 30px;
-            position: relative;
-            overflow: hidden;
-            transform: translateY(20px);
-            opacity: 0;
-            animation: fadeUp 0.8s forwards 0.3s;
-            flex: 1;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        .login-logo {
+            font-size: 80px;
+            margin-bottom: 30px;
+        }
+        
+        .login-form {
             display: flex;
             flex-direction: column;
+            gap: 15px;
         }
-        
-        .page::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            box-shadow: var(--glow-secondary);
-        }
-        
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .logo h1 {
-            font-family: 'Courier New', monospace;
-            font-weight: 700;
-            font-size: 3rem;
-            letter-spacing: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
-            margin-bottom: 10px;
-            animation: glow 3s infinite alternate;
-        }
-        
-        .logo p {
-            font-size: 1.1rem;
-            color: var(--light);
-            opacity: 0.8;
-            font-weight: 300;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
+
+        .input-group {
             position: relative;
         }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--light);
-            font-size: 0.9rem;
-            letter-spacing: 0.5px;
-        }
-        
-        .input-wrapper {
-            position: relative;
-        }
-        
-        input {
-            width: 100%;
-            padding: 15px 20px 15px 50px;
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            border-radius: 12px;
-            background: rgba(10, 5, 30, 0.5);
-            color: var(--text);
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            transition: all 0.3s;
-            outline: none;
-        }
-        
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: var(--glow);
-        }
-        
-        .input-icon {
+
+        .input-group i {
             position: absolute;
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--primary);
-            font-size: 1.2rem;
+            color: #aaa;
         }
-        
-        .btn {
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            border-radius: 12px;
-            cursor: pointer;
+
+        .login-input {
             width: 100%;
-            font-family: 'Poppins', sans-serif;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--glow);
-            display: block; /* Ensure button is always visible */
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(138, 43, 226, 0.4);
-        }
-        
-        .btn:active {
-            transform: translateY(1px);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            box-shadow: none;
-            margin-top: 15px;
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(138, 43, 226, 0.1);
-        }
-        
-        .action-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .action-link {
-            color: var(--light);
-            text-decoration: none;
-            font-size: 0.9rem;
-            opacity: 0.8;
-            transition: all 0.3s;
-            position: relative;
-        }
-        
-        .action-link:hover {
-            opacity: 1;
-            color: var(--secondary);
-        }
-        
-        .action-link::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background: var(--secondary);
-            transition: width 0.3s;
-        }
-        
-        .action-link:hover::after {
-            width: 100%;
-        }
-        
-        .lock-icon {
-            text-align: center;
-            font-size: 4rem;
-            margin: 20px 0;
-            color: var(--primary);
-            text-shadow: var(--glow);
-            animation: pulse 2s infinite;
-        }
-        
-        textarea {
-            width: 100%;
-            height: 100%;
-            padding: 20px;
-            border-radius: 15px;
-            background: rgba(10, 5, 30, 0.5);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            color: var(--text);
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            resize: none;
-            transition: all 0.3s;
-            margin-bottom: 20px;
-        }
-        
-        textarea:focus {
-            border-color: var(--primary);
-            box-shadow: var(--glow);
-            outline: none;
-        }
-        
-        .diary-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
-        }
-        
-        .diary-header h2 {
-            font-weight: 500;
-            color: var(--light);
-            font-size: 1.4rem;
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-icon {
-            background: rgba(138, 43, 226, 0.2);
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            color: var(--primary);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn-icon:hover {
-            background: rgba(138, 43, 226, 0.4);
-            transform: translateY(-3px);
-            box-shadow: var(--glow);
-        }
-        
-        .welcome-text {
-            text-align: center;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 30px;
-            opacity: 0;
-            animation: fadeIn 1s forwards 0.8s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-        
-        .welcome-text h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 600;
-            letter-spacing: 2px;
-        }
-        
-        .welcome-text p {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: var(--light);
-            margin-bottom: 30px;
-            opacity: 0.9;
-        }
-        
-        .enter-btn {
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid #333;
             border-radius: 50px;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--glow);
-            transform: translateY(20px);
-            opacity: 0;
-            animation: fadeUp 0.8s forwards 1.5s;
+            background-color: var(--input-bg);
+            color: var(--text-light);
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
         }
-        
-        .enter-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.5);
+
+        .login-input:focus {
+            border-color: var(--primary);
         }
-        
-        .enter-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -60%;
-            width: 20px;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(25deg);
-            transition: all 0.5s;
-        }
-        
-        .enter-btn:hover::after {
-            left: 120%;
-        }
-        
-        .page-title {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 30px;
-            font-weight: 500;
-            color: var(--light);
-            position: relative;
-        }
-        
-        .page-title::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            margin: 15px auto;
-            border-radius: 3px;
-        }
-        
-        .switch-form {
-            margin-top: 25px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--light);
-        }
-        
-        .switch-form a {
-            color: var(--secondary);
-            text-decoration: none;
-            margin-left: 5px;
-            transition: all 0.3s;
-        }
-        
-        .switch-form a:hover {
-            text-decoration: underline;
-        }
-        
-        .status-message {
+
+        .login-button {
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 500;
-            display: block; /* Always show status messages */
-            opacity: 1;
-            animation: fadeIn 0.5s;
-        }
-        
-        .success {
-            background: rgba(40, 167, 69, 0.2);
-            border: 1px solid rgba(40, 167, 69, 0.3);
-            color: #28a745;
-        }
-        
-        .error {
-            background: rgba(220, 53, 69, 0.2);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            color: #dc3545;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .password-strength {
-            height: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        
-        .strength-meter {
-            height: 100%;
-            width: 0;
-            transition: width 0.3s;
-            border-radius: 3px;
-        }
-        
-        .strength-0 { width: 20%; background: #dc3545; }
-        .strength-1 { width: 40%; background: #ff6b6b; }
-        .strength-2 { width: 60%; background: #ffc107; }
-        .strength-3 { width: 80%; background: #28a745; }
-        .strength-4 { width: 100%; background: #28a745; }
-        
-        /* Animations */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes glow {
-            0% { text-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
-            100% { text-shadow: 0 0 25px rgba(138, 43, 226, 0.8), 0 0 40px rgba(138, 43, 226, 0.6); }
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        @keyframes fogAnimation {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
-        
-        /* Typewriter effect */
-        .typewriter {
-            overflow: hidden;
-            border-right: 0.15em solid var(--primary);
-            white-space: nowrap;
-            margin: 0 auto;
-            letter-spacing: 0.15em;
-            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
-        }
-        
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-        
-        @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50% { border-color: var(--primary); }
-        }
-        
-        /* Diary folder structure */
-        .diary-container {
-            display: flex;
-            flex: 1;
-            gap: 20px;
-            height: calc(100% - 70px);
-        }
-        
-        .folders-sidebar {
-            width: var(--sidebar-width);
-            background: rgba(10, 5, 30, 0.5);
-            border-radius: 15px;
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            padding: 20px;
-            overflow-y: auto;
-            box-shadow: var(--glow);
-        }
-        
-        .folder-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
-        }
-        
-        .folder-header h3 {
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: var(--light);
-        }
-        
-        .folder-list {
-            list-style: none;
-            margin-bottom: 30px;
-        }
-        
-        .folder-item {
-            padding: 12px 15px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .folder-item:hover {
-            background: rgba(138, 43, 226, 0.2);
-        }
-        
-        .folder-item.active {
-            background: rgba(138, 43, 226, 0.3);
-            box-shadow: var(--glow);
-        }
-        
-        .folder-item i {
-            color: var(--primary);
-        }
-        
-        .entries-list {
-            list-style: none;
-            margin-left: 20px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        
-        .folder-item.expanded .entries-list {
-            max-height: 500px;
-        }
-        
-        .entry-item {
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .entry-item:hover {
-            background: rgba(255, 107, 107, 0.1);
-        }
-        
-        .entry-item.active {
-            background: rgba(255, 107, 107, 0.2);
-        }
-        
-        .entry-item i {
-            color: var(--secondary);
-        }
-        
-        .editor-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: rgba(10, 5, 30, 0.5);
-            border-radius: 15px;
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            overflow: hidden;
-            box-shadow: var(--glow);
-        }
-        
-        .editor-header {
-            padding: 15px 20px;
-            background: rgba(15, 10, 40, 0.7);
-            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
-        }
-        
-        .editor-header input {
-            background: transparent;
+            background: linear-gradient(45deg, var(--primary), #6c3cff);
+            color: white;
             border: none;
-            padding: 10px 15px;
-            font-size: 1.3rem;
-            width: 100%;
-            box-shadow: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(145, 71, 255, 0.4);
+        }
+
+        .form-footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .form-footer a {
+            color: var(--primary);
+            text-decoration: none;
             font-weight: 500;
         }
-        
-        .editor-header input:focus {
-            box-shadow: var(--glow);
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: left;
+            padding-left: 15px;
+            display: none;
+            min-height: 20px;
         }
-        
-        .editor-content {
-            flex: 1;
+        #generalError {
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 10px;
             padding: 0;
         }
-        
-        .editor-content textarea {
-            margin-bottom: 0;
+
+        /* App Container */
+        .app-container {
+            width: 100%;
             height: 100%;
-            border: none;
-            border-radius: 0;
+            max-width: 500px;
+            max-height: 900px;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+            background-color: var(--bg-dark);
+            box-shadow: 0 0 30px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            transition: background-color 0.3s;
         }
         
-        .new-folder-btn {
-            background: rgba(138, 43, 226, 0.2);
-            border: 1px dashed var(--primary);
-            color: var(--primary);
-            padding: 8px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
+        /* Header */
+        .app-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-bg);
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: background-color 0.3s;
+        }
+
+        .logo-container {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            margin-top: 15px;
+            gap: 12px;
         }
-        
-        .new-folder-btn:hover {
-            background: rgba(138, 43, 226, 0.3);
-            transform: translateY(-2px);
+
+        .app-logo {
+            font-size: 30px;
         }
-        
-        /* Responsive design */
-        @media (max-width: 900px) {
-            .diary-container {
-                flex-direction: column;
-            }
-            
-            .folders-sidebar {
-                width: 100%;
-                max-height: 200px;
-            }
+
+        .app-title {
+            font-weight: bold;
+            font-size: 18px;
         }
-        
-        @media (max-width: 600px) {
-            .page {
-                padding: 20px 15px;
-            }
-            
-            .logo h1 {
-                font-size: 2.5rem;
-            }
-            
-            .welcome-text h2 {
-                font-size: 2rem;
-            }
-            
-            .diary-header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
-            }
-            
-            .btn-group {
-                align-self: flex-end;
-            }
-            
-            .folder-header h3 {
-                font-size: 1rem;
-            }
-            
-            .folder-item, .entry-item {
-                padding: 10px;
-                font-size: 0.9rem;
-            }
-        }
-        
-        /* Shake animation for wrong password */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
-        }
-        
-        .shake {
-            animation: shake 0.5s;
-        }
-        
-        /* Ad container styles */
-        #ad-banner-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            padding: 10px 0;
-            background: rgba(15, 10, 40, 0.9);
-            z-index: 1000;
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary);
             display: flex;
             justify-content: center;
             align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s, color 0.3s;
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
         }
         
-        #ad-banner {
-            width: 320px;
-            height: 50px;
-            margin: 0 auto;
+        .header-icon:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Content Wrapper for scrolling fix */
+        .content-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Main Content & Containers (position absolute for easy switching) */
+        .main-content, .chat-container, .settings-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background-color: var(--bg-dark);
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .welcome-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 30px;
+        }
+
+        .action-button {
+            padding: 20px;
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: var(--border-radius);
+            color: var(--text-light);
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s, color 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-align: left;
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px);
+            background-color: #252529;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+        body.light-mode .action-button:hover {
+            background-color: #f8f8f8;
+        }
+
+
+        .action-button .icon {
+            margin-right: 12px;
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            display: none; /* Controlled by JS */
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 15px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), #6c3cff);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background-color: var(--card-bg);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time { font-size: 10px; opacity: 0.7; margin-top: 5px; text-align: right; }
+
+        .typing-indicator {
+            display: flex; align-items: center; padding: 15px; background-color: var(--card-bg);
+            border-radius: 18px; border-bottom-left-radius: 5px; align-self: flex-start;
+            margin-bottom: 15px; width: 100px; transition: background-color 0.3s;
+        }
+        .typing-dot {
+            width: 8px; height: 8px; background-color: #aaa; border-radius: 50%;
+            margin: 0 4px; animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 15px; display: flex; align-items: center;
+            background-color: var(--card-bg); border-top: 1px solid #333;
+            transition: background-color 0.3s;
+        }
+        body.light-mode .chat-input-container { border-top-color: #ddd; }
+
+        .chat-input {
+            flex: 1; padding: 15px 20px; border: 1px solid #333; border-radius: 50px;
+            background-color: var(--input-bg); color: var(--text-light); font-size: 16px;
+            outline: none; transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+        }
+        body.light-mode .chat-input { border-color: #ccc; }
+        .chat-input:focus { border-color: var(--primary); }
+
+        .send-button {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), #6c3cff); border: none;
+            color: white; margin-left: 10px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: transform 0.2s; font-size: 18px; box-shadow: 0 4px 10px rgba(145, 71, 255, 0.3);
+        }
+        .send-button:hover { transform: scale(1.05); }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex; justify-content: space-around; padding: 10px 0; /* Reduced height */
+            background-color: var(--card-bg); border-top: 1px solid #333;
+            transition: background-color 0.3s;
+        }
+        body.light-mode .bottom-nav { border-top-color: #ddd; }
+
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; color: #aaa;
+            cursor: pointer; transition: color 0.2s, background-color 0.2s; padding: 5px 15px; border-radius: 10px;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-item:hover { background-color: var(--hover-light); }
+        .nav-icon { font-size: 20px; margin-bottom: 5px; }
+        .nav-label { font-size: 12px; }
+        
+        /* Settings Container */
+        .settings-container {
+            display: none; /* Controlled by JS */
+            flex-direction: column;
+            gap: 20px;
+        }
+        .settings-header {
+            font-size: 20px;
+            font-weight: bold;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--secondary);
+            display: flex;
+            align-items: center;
+        }
+        .settings-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background-color: var(--card-bg); padding: 15px; border-radius: var(--border-radius);
+            transition: background-color 0.3s;
+        }
+        .settings-item label { font-size: 16px; font-weight: 500; }
+        .logout-button {
+            width: 100%; padding: 15px; background-color: #c93434; color: white; border: none;
+            border-radius: var(--border-radius); font-size: 16px; font-weight: bold; cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .logout-button:hover { background-color: #e04444; }
+
+        /* Theme Toggle Switch */
+        .theme-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* Chat History */
+        #chatHistoryList {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .history-item {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .history-item:hover { background-color: var(--hover-light); }
+        .history-title {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;
+        }
+        .history-actions button {
+            background: none; border: none; color: #aaa; cursor: pointer; font-size: 16px; margin-left: 10px;
+        }
+        .history-actions button:hover { color: var(--primary); }
+        #noHistoryMessage { text-align: center; color: #aaa; margin-top: 20px; }
+        
+
+        /* Animations */
+        @keyframes typingAnimation { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .app-container { max-width: 100%; max-height: 100%; border-radius: 0; }
+            .login-container { width: 90%; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Welcome Page -->
-        <div id="welcomePage">
-            <div class="welcome-text">
-                <h2>Welcome to <span class="typewriter">WhispRoom</span></h2>
-                <p>Your private sanctuary where thoughts remain yours alone. A secure digital diary protected by encryption and accessible only with your secret key.</p>
-                <button id="enterBtn" class="enter-btn">Enter the Room</button>
+
+    <div class="loader-container" id="loaderContainer">
+        <div class="loader"></div>
+        <p>Initializing...</p>
+    </div>
+
+    <div class="login-container" id="loginContainer">
+        <div class="login-logo">🦑</div>
+        <div class="login-form">
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" class="login-input" id="emailInput" placeholder="Email address" autocomplete="email">
             </div>
-        </div>
-        
-        <!-- Auth Page -->
-        <div id="authPage" class="page hidden">
-            <div class="logo">
-                <h1>WhispRoom</h1>
-                <p>Your private sanctuary</p>
-            </div>
-            
-            <div class="lock-icon">
+            <div class="error-message" id="emailError">Please enter a valid email</div>
+            <div class="input-group">
                 <i class="fas fa-lock"></i>
+                <input type="password" class="login-input" id="passwordInput" placeholder="Password" autocomplete="current-password">
             </div>
-            
-            <!-- Login Form -->
-            <div id="loginForm">
-                <h2 class="page-title">Unlock Your Sanctuary</h2>
-                <div class="status-message" id="loginStatus"></div>
-                
-                <div class="form-group">
-                    <label for="loginPassword">Secret Key</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-key input-icon"></i>
-                        <input type="password" id="loginPassword" placeholder="Enter your secret key">
-                    </div>
-                </div>
-                
-                <!-- Adsterra Direct Link Ad - Wrapped around the Unlock Diary button -->
-                <a href="https://www.profitableratecpm.com/q9qvgzty?key=fb9c9528dcf2298f3b4409c7fc1f943e" target="_blank" style="text-decoration: none;">
-                    <button id="loginBtn" class="btn">Unlock Diary</button>
-                </a>
-                
-                <div class="switch-form">
-                    Forgot your key? <a href="#" id="showResetForm">Reset it</a>
-                </div>
-            </div>
-            
-            <!-- Reset Password Form -->
-            <div id="resetForm" class="hidden">
-                <h2 class="page-title">Reset Your Secret Key</h2>
-                <div class="status-message" id="resetStatus"></div>
-                
-                <div class="form-group">
-                    <label for="oldPassword">Current Key</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-key input-icon"></i>
-                        <input type="password" id="oldPassword" placeholder="Enter your current key">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="newPassword">New Key</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="newPassword" placeholder="Create a new key">
-                    </div>
-                    <div class="password-strength">
-                        <div class="strength-meter" id="passwordStrength"></div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm New Key</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="confirmPassword" placeholder="Confirm your new key">
-                    </div>
-                </div>
-                
-                <button id="resetBtn" class="btn">Change Secret Key</button>
-                
-                <div class="switch-form">
-                    Remembered your key? <a href="#" id="showLoginForm">Back to login</a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Diary Page -->
-        <div id="diaryPage" class="page hidden">
-            <div class="diary-header">
-                <h2><i class="fas fa-book"></i> My Private Diary</h2>
-                <div class="btn-group">
-                    <button id="saveBtn" class="btn-icon" title="Save">
-                        <i class="fas fa-save"></i>
-                    </button>
-                    <button id="newEntryBtn" class="btn-icon" title="New Entry">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button id="changePassBtn" class="btn-icon" title="Change Secret Key">
-                        <i class="fas fa-key"></i>
-                    </button>
-                    <button id="lockBtn" class="btn-icon" title="Lock Diary">
-                        <i class="fas fa-lock"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="status-message" id="diaryStatus"></div>
-            
-            <div class="diary-container">
-                <div class="folders-sidebar">
-                    <div class="folder-header">
-                        <h3>Diary Folders</h3>
-                        <div class="btn-icon" id="newFolderBtn" title="New Folder">
-                            <i class="fas fa-folder-plus"></i>
-                        </div>
-                    </div>
-                    
-                    <ul class="folder-list" id="folderList">
-                        <!-- Folders will be dynamically added here -->
-                    </ul>
-                    
-                    <button class="new-folder-btn" id="addFolderBtn">
-                        <i class="fas fa-plus"></i> Create New Folder
-                    </button>
-                </div>
-                
-                <div class="editor-container">
-                    <div class="editor-header">
-                        <input type="text" id="entryTitle" placeholder="Untitled Entry">
-                    </div>
-                    <div class="editor-content">
-                        <textarea id="diaryEntry" placeholder="Pour your heart out... your thoughts are safe here"></textarea>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="action-links">
-                <a href="#" id="backToAuth">Change Secret Key</a>
-                <a href="#" id="clearDiary">Clear All Entries</a>
+            <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
+            <div class="error-message" id="generalError"></div>
+            <button class="login-button" id="authButton">Log In</button>
+            <div class="form-footer">
+                <span id="formFooterText">Don't have an account?</span> <a href="#" id="toggleAuthModeLink">Sign Up</a>
             </div>
         </div>
     </div>
 
-    <!-- Adsterra Banner Ad Container (320x50) -->
-    <div id="ad-banner-container">
-        <div id="ad-banner">
-            <!-- Adsterra banner ad script -->
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : '225046da06904ed6b7df64705db0e922',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/225046da06904ed6b7df64705db0e922/invoke.js"></script>
+    <div class="app-container" id="appContainer">
+        <div class="app-header">
+            <div class="logo-container">
+                <div class="app-logo">🦑</div>
+                <div class="app-title">Squid AI</div>
+            </div>
+            <button class="header-icon" id="settingsButton" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- Main Content -->
+            <div class="main-content" id="mainContent">
+                <div class="welcome-text">Where should we start?</div>
+                <div class="action-buttons">
+                    <button class="action-button" id="chatButton"><span class="icon">💬</span> Start a new chat</button>
+                    <button class="action-button" id="learnButton"><span class="icon">🧠</span> Learn about AI</button>
+                    <button class="action-button" id="codeButton"><span class="icon"><i class="fas fa-code"></i></span> Create Codes</button>
+                </div>
+            </div>
+
+            <!-- Chat Container -->
+            <div class="chat-container" id="chatContainer">
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Ask Squid AI...">
+                    <button class="send-button" id="sendButton"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+            
+            <!-- Settings Container -->
+            <div class="settings-container" id="settingsContainer">
+                <h2 class="settings-header">Settings</h2>
+                <div class="settings-item">
+                    <label for="themeToggle">Light Mode</label>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div>
+                    <h3 class="settings-header" style="margin-top: 20px; font-size: 18px;">Chat History</h3>
+                     <ul id="chatHistoryList"></ul>
+                     <p id="noHistoryMessage" style="display: none;">No saved chats yet.</p>
+                </div>
+                <div class="settings-item" style="background: none; padding: 0; margin-top: auto;">
+                    <button class="logout-button" id="logoutButton">Log Out</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" id="homeNav">
+                <div class="nav-icon"><i class="fas fa-home"></i></div>
+                <div class="nav-label">Home</div>
+            </div>
+            <div class="nav-item" id="newChatNav">
+                <div class="nav-icon"><i class="fas fa-plus-circle"></i></div>
+                <div class="nav-label">New Chat</div>
+            </div>
         </div>
     </div>
 
-    <script>
-        // DOM Elements
-        const welcomePage = document.getElementById('welcomePage');
-        const authPage = document.getElementById('authPage');
-        const diaryPage = document.getElementById('diaryPage');
-        const enterBtn = document.getElementById('enterBtn');
-        const loginForm = document.getElementById('loginForm');
-        const resetForm = document.getElementById('resetForm');
-        const showResetForm = document.getElementById('showResetForm');
-        const showLoginForm = document.getElementById('showLoginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const loginPassword = document.getElementById('loginPassword');
-        const oldPassword = document.getElementById('oldPassword');
-        const newPassword = document.getElementById('newPassword');
-        const confirmPassword = document.getElementById('confirmPassword');
-        const passwordStrength = document.getElementById('passwordStrength');
-        const diaryEntry = document.getElementById('diaryEntry');
-        const entryTitle = document.getElementById('entryTitle');
-        const saveBtn = document.getElementById('saveBtn');
-        const newEntryBtn = document.getElementById('newEntryBtn');
-        const changePassBtn = document.getElementById('changePassBtn');
-        const lockBtn = document.getElementById('lockBtn');
-        const backToAuth = document.getElementById('backToAuth');
-        const clearDiary = document.getElementById('clearDiary');
-        const loginStatus = document.getElementById('loginStatus');
-        const resetStatus = document.getElementById('resetStatus');
-        const diaryStatus = document.getElementById('diaryStatus');
-        const folderList = document.getElementById('folderList');
-        const newFolderBtn = document.getElementById('newFolderBtn');
-        const addFolderBtn = document.getElementById('addFolderBtn');
+<script>
+    // =================================================================================
+    // IMPORTANT: Configuration
+    // =================================================================================
+    const AI_API_KEY = "AIzaSyB4AO0njaJ9KaArA9AlNPYhN_fDqC_l1VQ";
+    const MODEL = "gemini-1.5-flash";
+    const AI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${AI_API_KEY}`;
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyCnS5bEqwCJHSwUkDbA3gWBRvL3o5OIrrw",
+      authDomain: "chat-app-b07dc.firebaseapp.com",
+      projectId: "chat-app-b07dc",
+      storageBucket: "chat-app-b07dc.firebasestorage.app",
+      messagingSenderId: "366248300706",
+      appId: "1:366248300706:web:ca64e809e4f0ca52e747fb",
+      measurementId: "G-4JZ3MQ9J7M"
+    };
 
-        // State management
-        let currentPage = 'welcome';
-        let currentEntryId = null;
-        let currentFolderId = null;
-        const PASSWORD_KEY = 'whispRoomPassword';
-        const ENTRY_KEY = 'whispRoomEntries';
-        const FOLDER_KEY = 'whispRoomFolders';
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-        // Password strength indicator
-        newPassword.addEventListener('input', function() {
-            const password = this.value;
-            let strength = 0;
-            
-            if (password.length > 7) strength++;
-            if (password.match(/[a-z]+/)) strength++;
-            if (password.match(/[A-Z]+/)) strength++;
-            if (password.match(/[0-9]+/)) strength++;
-            if (password.match(/[$@#&!]+/)) strength++;
-            
-            passwordStrength.className = 'strength-meter';
-            if (password.length > 0) {
-                passwordStrength.classList.add(`strength-${Math.min(strength, 4)}`);
-            }
-        });
+    // =================================================================================
+    // DOM Element References
+    // =================================================================================
+    const loaderContainer = document.getElementById('loaderContainer');
+    const loginContainer = document.getElementById('loginContainer');
+    const appContainer = document.getElementById('appContainer');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const authButton = document.getElementById('authButton');
+    const toggleAuthModeLink = document.getElementById('toggleAuthModeLink');
+    const formFooterText = document.getElementById('formFooterText');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const generalError = document.getElementById('generalError');
+    const settingsButton = document.getElementById('settingsButton');
+    const logoutButton = document.getElementById('logoutButton');
+    const mainContent = document.getElementById('mainContent');
+    const chatContainer = document.getElementById('chatContainer');
+    const settingsContainer = document.getElementById('settingsContainer');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatButton = document.getElementById('chatButton');
+    const learnButton = document.getElementById('learnButton');
+    const codeButton = document.getElementById('codeButton');
+    const homeNav = document.getElementById('homeNav');
+    const newChatNav = document.getElementById('newChatNav');
+    const themeToggle = document.getElementById('themeToggle');
+    const chatHistoryList = document.getElementById('chatHistoryList');
+    const noHistoryMessage = document.getElementById('noHistoryMessage');
 
-        // Navigation functions
-        function showPage(page) {
-            welcomePage.classList.add('hidden');
-            authPage.classList.add('hidden');
-            diaryPage.classList.add('hidden');
-            
-            switch(page) {
-                case 'welcome':
-                    welcomePage.classList.remove('hidden');
-                    break;
-                case 'auth':
-                    authPage.classList.remove('hidden');
-                    loginPassword.focus();
-                    break;
-                case 'diary':
-                    diaryPage.classList.remove('hidden');
-                    loadFolders();
-                    break;
-            }
-            
-            currentPage = page;
+    
+    // =================================================================================
+    // App State
+    // =================================================================================
+    let currentUser = null;
+    let isTyping = false;
+    let isSignupMode = false;
+    let currentChat = []; // To hold messages of the current session { text, sender }
+
+    // =================================================================================
+    // Main App Logic & Authentication
+    // =================================================================================
+
+    auth.onAuthStateChanged(user => {
+        loaderContainer.style.display = 'none';
+        if (user) {
+            currentUser = user;
+            showApp();
+        } else {
+            currentUser = null;
+            showLogin();
         }
-
-        function showMessage(element, message, isError = false) {
-            element.textContent = message;
-            element.className = isError ? 'status-message error' : 'status-message success';
-            element.style.display = 'block';
-            
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 5000);
-        }
-
-        // Password hashing (simplified for demo)
-        function hashPassword(password) {
-            // In a real app, use a proper hashing algorithm like bcrypt or SHA-256
-            return password.split('').reverse().join('') + password.length;
-        }
-
-        // Folder and entry management
-        function getFolders() {
-            const folders = localStorage.getItem(FOLDER_KEY);
-            return folders ? JSON.parse(folders) : [
-                { id: 'default', name: 'Personal Diary', entries: [], expanded: true },
-                { id: 'dreams', name: 'Dream Journal', entries: [], expanded: false },
-                { id: 'ideas', name: 'Creative Ideas', entries: [], expanded: false }
-            ];
-        }
-
-        function saveFolders(folders) {
-            localStorage.setItem(FOLDER_KEY, JSON.stringify(folders));
-        }
-
-        function getEntries() {
-            const entries = localStorage.getItem(ENTRY_KEY);
-            return entries ? JSON.parse(entries) : [];
-        }
-
-        function saveEntries(entries) {
-            localStorage.setItem(ENTRY_KEY, JSON.stringify(entries));
-        }
-
-        function loadFolders() {
-            const folders = getFolders();
-            folderList.innerHTML = '';
-            
-            folders.forEach(folder => {
-                const folderItem = document.createElement('li');
-                folderItem.className = 'folder-item';
-                if (folder.expanded) folderItem.classList.add('expanded');
-                folderItem.dataset.id = folder.id;
-                folderItem.innerHTML = `
-                    <i class="fas fa-folder${folder.expanded ? '-open' : ''}"></i>
-                    <span>${folder.name}</span>
-                    <span class="badge">${folder.entries.length}</span>
-                `;
-                
-                folderItem.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('badge')) {
-                        // Toggle expanded state
-                        folder.expanded = !folder.expanded;
-                        folderItem.classList.toggle('expanded', folder.expanded);
-                        folderItem.querySelector('i').className = folder.expanded ? 
-                            'fas fa-folder-open' : 'fas fa-folder';
-                        saveFolders(folders);
-                        
-                        // Load entries for this folder
-                        loadEntries(folder.id);
-                        currentFolderId = folder.id;
-                    }
-                });
-                
-                const entriesList = document.createElement('ul');
-                entriesList.className = 'entries-list';
-                entriesList.style.maxHeight = folder.expanded ? '500px' : '0';
-                
-                folder.entries.forEach(entry => {
-                    const entryItem = document.createElement('li');
-                    entryItem.className = 'entry-item';
-                    if (entry.id === currentEntryId) entryItem.classList.add('active');
-                    entryItem.dataset.id = entry.id;
-                    entryItem.innerHTML = `
-                        <i class="fas fa-file-alt"></i>
-                        <span>${entry.title}</span>
-                    `;
-                    
-                    entryItem.addEventListener('click', () => {
-                        // Remove active class from all entries
-                        document.querySelectorAll('.entry-item').forEach(item => {
-                            item.classList.remove('active');
-                        });
-                        // Add active class to clicked entry
-                        entryItem.classList.add('active');
-                        // Load entry content
-                        loadEntryContent(entry.id);
-                    });
-                    
-                    entriesList.appendChild(entryItem);
-                });
-                
-                folderItem.appendChild(entriesList);
-                folderList.appendChild(folderItem);
-                
-                // Set the first folder as active by default
-                if (folders.indexOf(folder) === 0 && folder.entries.length > 0) {
-                    currentFolderId = folder.id;
-                    loadEntries(folder.id);
-                }
-            });
-            
-            // Create a new entry if no entries exist
-            if (getEntries().length === 0) {
-                createNewEntry('default');
-            }
-        }
-
-        function loadEntries(folderId) {
-            const folders = getFolders();
-            const folder = folders.find(f => f.id === folderId);
-            
-            if (!folder) return;
-            
-            const entriesList = document.querySelector(`.folder-item[data-id="${folderId}"] .entries-list`);
-            if (!entriesList) return;
-            
-            entriesList.innerHTML = '';
-            
-            folder.entries.forEach(entry => {
-                const entryItem = document.createElement('li');
-                entryItem.className = 'entry-item';
-                if (entry.id === currentEntryId) entryItem.classList.add('active');
-                entryItem.dataset.id = entry.id;
-                entryItem.innerHTML = `
-                    <i class="fas fa-file-alt"></i>
-                    <span>${entry.title}</span>
-                `;
-                
-                entryItem.addEventListener('click', () => {
-                    // Remove active class from all entries
-                    document.querySelectorAll('.entry-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
-                    // Add active class to clicked entry
-                    entryItem.classList.add('active');
-                    // Load entry content
-                    loadEntryContent(entry.id);
-                });
-                
-                entriesList.appendChild(entryItem);
-            });
-        }
-
-        function loadEntryContent(entryId) {
-            const entries = getEntries();
-            const entry = entries.find(e => e.id === entryId);
-            
-            if (entry) {
-                entryTitle.value = entry.title;
-                diaryEntry.value = entry.content;
-                currentEntryId = entryId;
-            }
-        }
-
-        function saveCurrentEntry() {
-            if (!currentEntryId) return;
-            
-            const entries = getEntries();
-            const folders = getFolders();
-            
-            const entryIndex = entries.findIndex(e => e.id === currentEntryId);
-            
-            if (entryIndex !== -1) {
-                entries[entryIndex].title = entryTitle.value;
-                entries[entryIndex].content = diaryEntry.value;
-                entries[entryIndex].lastModified = new Date().toISOString();
-                
-                // Update the folder entry reference
-                for (const folder of folders) {
-                    const entryInFolder = folder.entries.find(e => e.id === currentEntryId);
-                    if (entryInFolder) {
-                        entryInFolder.title = entryTitle.value;
-                    }
-                }
-                
-                saveEntries(entries);
-                saveFolders(folders);
-                showMessage(diaryStatus, 'Entry saved successfully!', false);
-                
-                // Refresh the folder view
-                loadFolders();
-            }
-        }
-
-        function createNewEntry(folderId) {
-            const folders = getFolders();
-            const entries = getEntries();
-            
-            const folder = folders.find(f => f.id === folderId);
-            if (!folder) return;
-            
-            const newId = 'entry-' + Date.now();
-            const newEntry = {
-                id: newId,
-                title: 'Untitled Entry',
-                content: '',
-                created: new Date().toISOString(),
-                lastModified: new Date().toISOString()
-            };
-            
-            entries.push(newEntry);
-            folder.entries.push({ id: newId, title: 'Untitled Entry' });
-            
-            saveEntries(entries);
-            saveFolders(folders);
-            
-            // Load the new entry
-            currentFolderId = folderId;
-            currentEntryId = newId;
-            entryTitle.value = 'Untitled Entry';
-            diaryEntry.value = '';
-            
-            // Refresh the folder view
-            loadFolders();
-            
-            // Set the new entry as active
-            setTimeout(() => {
-                const newEntryEl = document.querySelector(`.entry-item[data-id="${newId}"]`);
-                if (newEntryEl) {
-                    newEntryEl.classList.add('active');
-                }
-            }, 100);
-            
-            showMessage(diaryStatus, 'New entry created!', false);
-        }
-
-        function createNewFolder() {
-            const folders = getFolders();
-            const folderName = prompt('Enter folder name:', 'New Folder');
-            
-            if (folderName) {
-                const newFolder = {
-                    id: 'folder-' + Date.now(),
-                    name: folderName,
-                    entries: [],
-                    expanded: true
-                };
-                
-                folders.push(newFolder);
-                saveFolders(folders);
-                loadFolders();
-                showMessage(diaryStatus, `Folder "${folderName}" created!`, false);
-            }
-        }
-
-        function clearAllEntries() {
-            if (confirm('Are you sure you want to clear ALL entries? This cannot be undone.')) {
-                localStorage.removeItem(ENTRY_KEY);
-                
-                // Reset folders to default structure
-                const folders = getFolders();
-                folders.forEach(folder => folder.entries = []);
-                saveFolders(folders);
-                
-                // Create a new entry in the default folder
-                createNewEntry('default');
-                
-                showMessage(diaryStatus, 'All entries cleared', false);
-            }
-        }
-
-        // Set up event listeners
-        enterBtn.addEventListener('click', () => {
-            showPage('auth');
-        });
-
-        showResetForm.addEventListener('click', (e) => {
+    });
+    
+    function setupEventListeners() {
+        authButton.addEventListener('click', handleAuthAction);
+        toggleAuthModeLink.addEventListener('click', (e) => {
             e.preventDefault();
-            loginForm.classList.add('hidden');
-            resetForm.classList.remove('hidden');
+            toggleAuthMode();
         });
-
-        showLoginForm.addEventListener('click', (e) => {
-            e.preventDefault();
-            resetForm.classList.add('hidden');
-            loginForm.classList.remove('hidden');
-        });
-
-        loginBtn.addEventListener('click', () => {
-            const password = loginPassword.value.trim();
-            
-            if (!password) {
-                showMessage(loginStatus, 'Please enter your secret key', true);
-                loginPassword.classList.add('shake');
-                setTimeout(() => loginPassword.classList.remove('shake'), 500);
-                return;
-            }
-            
-            const storedHash = localStorage.getItem(PASSWORD_KEY);
-            const inputHash = hashPassword(password);
-            
-            if (!storedHash) {
-                // Set new password
-                localStorage.setItem(PASSWORD_KEY, inputHash);
-                showPage('diary');
-                showMessage(loginStatus, 'New password set successfully!', false);
-            } else if (storedHash === inputHash) {
-                // Successful login
-                showPage('diary');
-            } else {
-                showMessage(loginStatus, 'Incorrect secret key. Please try again.', true);
-                loginPassword.classList.add('shake');
-                setTimeout(() => loginPassword.classList.remove('shake'), 500);
-            }
-            
-            loginPassword.value = '';
-        });
-
-        resetBtn.addEventListener('click', () => {
-            const oldPass = oldPassword.value.trim();
-            const newPass = newPassword.value.trim();
-            const confirmPass = confirmPassword.value.trim();
-            
-            if (!oldPass || !newPass || !confirmPass) {
-                showMessage(resetStatus, 'Please fill in all fields', true);
-                return;
-            }
-            
-            if (newPass !== confirmPass) {
-                showMessage(resetStatus, 'New keys do not match', true);
-                return;
-            }
-            
-            if (newPass.length < 6) {
-                showMessage(resetStatus, 'Key must be at least 6 characters', true);
-                return;
-            }
-            
-            const storedHash = localStorage.getItem(PASSWORD_KEY);
-            const oldPassHash = hashPassword(oldPass);
-            
-            if (storedHash !== oldPassHash) {
-                showMessage(resetStatus, 'Current key is incorrect', true);
-                return;
-            }
-            
-            // Update password
-            const newPassHash = hashPassword(newPass);
-            localStorage.setItem(PASSWORD_KEY, newPassHash);
-            
-            showMessage(resetStatus, 'Secret key changed successfully!', false);
-            
-            // Clear fields
-            oldPassword.value = '';
-            newPassword.value = '';
-            confirmPassword.value = '';
-            
-            // Show login form after delay
-            setTimeout(() => {
-                resetForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-            }, 2000);
-        });
-
-        saveBtn.addEventListener('click', saveCurrentEntry);
-
-        newEntryBtn.addEventListener('click', () => {
-            if (currentFolderId) {
-                createNewEntry(currentFolderId);
-            } else {
-                // Default to first folder
-                const folders = getFolders();
-                if (folders.length > 0) {
-                    createNewEntry(folders[0].id);
-                }
-            }
-        });
-
-        changePassBtn.addEventListener('click', () => {
-            showPage('auth');
-            resetForm.classList.remove('hidden');
-            loginForm.classList.add('hidden');
-        });
-
-        lockBtn.addEventListener('click', () => {
-            showPage('auth');
-        });
-
-        backToAuth.addEventListener('click', (e) => {
-            e.preventDefault();
-            showPage('auth');
-        });
-
-        clearDiary.addEventListener('click', (e) => {
-            e.preventDefault();
-            clearAllEntries();
-        });
-
-        newFolderBtn.addEventListener('click', createNewFolder);
-        addFolderBtn.addEventListener('click', createNewFolder);
-
-        // Auto-save when typing stops
-        let typingTimer;
+        logoutButton.addEventListener('click', handleLogout);
+        settingsButton.addEventListener('click', () => navigateTo('settings'));
         
-        function setupAutoSave() {
-            entryTitle.addEventListener('input', () => {
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(saveCurrentEntry, 2000);
-            });
-            
-            diaryEntry.addEventListener('input', () => {
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(saveCurrentEntry, 2000);
-            });
+        chatInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !isTyping) sendMessage(); });
+        sendButton.addEventListener('click', () => { if (!isTyping) sendMessage(); });
+
+        chatButton.addEventListener('click', () => startChat());
+        learnButton.addEventListener('click', () => startPresetChat("learn"));
+        codeButton.addEventListener('click', () => startPresetChat("code"));
+        
+        homeNav.addEventListener('click', () => navigateTo('home'));
+        newChatNav.addEventListener('click', () => startChat());
+        
+        themeToggle.addEventListener('change', toggleTheme);
+    }
+    
+    function showLogin() {
+        loginContainer.style.display = 'block';
+        appContainer.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        emailInput.value = '';
+        passwordInput.value = '';
+        clearErrors();
+    }
+
+    function showApp() {
+        loginContainer.style.display = 'none';
+        appContainer.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        navigateTo('home');
+        loadTheme();
+    }
+
+    function clearErrors() {
+        emailError.style.display = 'none';
+        passwordError.style.display = 'none';
+        generalError.style.display = 'none';
+        generalError.textContent = '';
+    }
+
+    function handleAuthAction() {
+        if (!validateInputs()) return;
+        const email = emailInput.value;
+        const password = passwordInput.value;
+
+        authButton.disabled = true;
+        authButton.textContent = 'Processing...';
+        
+        const action = isSignupMode 
+            ? auth.createUserWithEmailAndPassword(email, password)
+            : auth.signInWithEmailAndPassword(email, password);
+
+        action.catch(error => {
+            generalError.textContent = error.message;
+            generalError.style.display = 'block';
+        }).finally(() => {
+            authButton.disabled = false;
+            authButton.textContent = isSignupMode ? 'Sign Up' : 'Log In';
+        });
+    }
+
+    function toggleAuthMode() {
+        isSignupMode = !isSignupMode;
+        clearErrors();
+        if (isSignupMode) {
+            authButton.textContent = 'Sign Up';
+            formFooterText.textContent = 'Already have an account?';
+            toggleAuthModeLink.textContent = 'Log In';
+        } else {
+            authButton.textContent = 'Log In';
+            formFooterText.textContent = "Don't have an account?";
+            toggleAuthModeLink.textContent = 'Sign Up';
+        }
+    }
+    
+    function handleLogout() {
+        saveCurrentChat(); // Save chat before logging out
+        auth.signOut();
+    }
+
+    function validateInputs() {
+        clearErrors();
+        let isValid = true;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+            emailError.style.display = 'block';
+            isValid = false;
+        }
+        if (passwordInput.value.length < 6) {
+            passwordError.style.display = 'block';
+            isValid = false;
+        }
+        return isValid;
+    }
+
+    // =================================================================================
+    // Navigation, Chat, and Settings Logic
+    // =================================================================================
+
+    function navigateTo(section) {
+        // Save chat when navigating away
+        if (chatContainer.style.display === 'flex' && section !== 'chat') {
+            saveCurrentChat();
+        }
+        
+        // Hide all main views
+        mainContent.style.display = 'none';
+        chatContainer.style.display = 'none';
+        settingsContainer.style.display = 'none';
+        
+        // Update nav item active state
+        homeNav.classList.remove('active');
+        newChatNav.classList.remove('active');
+
+        // Show the selected view
+        if (section === 'home') {
+            mainContent.style.display = 'flex';
+            homeNav.classList.add('active');
+        } else if (section === 'chat') {
+            chatContainer.style.display = 'flex';
+            newChatNav.classList.add('active');
+        } else if (section === 'settings') {
+            settingsContainer.style.display = 'flex';
+            homeNav.classList.add('active'); // Keep home active for settings
+            renderChatHistory();
+        }
+    }
+
+    function startChat() {
+        navigateTo('chat');
+        chatMessages.innerHTML = '';
+        currentChat = [];
+        addMessage("Hello! How can I help you today?", 'ai');
+    }
+
+    function startPresetChat(type) {
+        navigateTo('chat');
+        chatMessages.innerHTML = '';
+        currentChat = [];
+        let prompt, aiGreeting;
+
+        if (type === "learn") {
+            prompt = "Tell me a fun fact about Artificial Intelligence.";
+            aiGreeting = "Of course! Let's learn about AI. Here's a fun fact to start:";
+        } else if (type === "code") {
+            prompt = "Write a simple Python function to reverse a string.";
+            aiGreeting = "Sure, I can help with that. Here is a Python function to get you started:";
         }
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', () => {
-            setupAutoSave();
+        addMessage(aiGreeting, 'ai');
+        setTimeout(() => getAIResponse(prompt), 500);
+    }
+    
+    async function sendMessage() {
+        const messageText = chatInput.value.trim();
+        if (!messageText || isTyping) return;
+
+        addMessage(messageText, 'user');
+        chatInput.value = '';
+        await getAIResponse(messageText);
+    }
+
+    async function getAIResponse(prompt) {
+        isTyping = true;
+        simulateTyping();
+        
+        try {
+            const response = await fetch(AI_API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+            });
             
-            // For demo purposes
-            if (!localStorage.getItem(PASSWORD_KEY)) {
-                setTimeout(() => {
-                    showMessage(loginStatus, 'Welcome! Since it\'s your first time, enter any secret key to create your diary.', false);
-                }, 1000);
+            removeTypingIndicator();
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `API Error: ${response.statusText}`);
             }
+            const data = await response.json();
             
-            // Initialize folders if not present
-            if (!localStorage.getItem(FOLDER_KEY)) {
-                const folders = [
-                    { id: 'default', name: 'Personal Diary', entries: [], expanded: true },
-                    { id: 'dreams', name: 'Dream Journal', entries: [], expanded: false },
-                    { id: 'ideas', name: 'Creative Ideas', entries: [], expanded: false }
-                ];
-                saveFolders(folders);
+            if (data.candidates && data.candidates[0].content) {
+                const responseText = data.candidates[0].content.parts[0].text;
+                addMessage(responseText, 'ai');
+            } else {
+                 addMessage("I'm having trouble understanding. Could you please rephrase?", 'ai');
             }
+        } catch (error) {
+            console.error('AI API Error:', error);
+            removeTypingIndicator();
+            addMessage("Sorry, I encountered an error: " + error.message, 'ai');
+        } finally {
+            isTyping = false;
+        }
+    }
+
+    function addMessage(text, sender) {
+        // Add to state and UI
+        currentChat.push({ text, sender });
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', `${sender}-message`);
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        const textNode = document.createElement('div');
+        textNode.innerText = text;
+
+        messageElement.innerHTML = `<div>${textNode.innerHTML.replace(/\n/g, '<br>')}</div><div class="message-time">${time}</div>`;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function simulateTyping() {
+        const typingElement = document.createElement('div');
+        typingElement.classList.add('typing-indicator');
+        typingElement.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
+        chatMessages.appendChild(typingElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typingIndicator = chatMessages.querySelector('.typing-indicator');
+        if (typingIndicator) typingIndicator.remove();
+    }
+    
+    // =================================================================================
+    // Theme Persistence
+    // =================================================================================
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const theme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+        localStorage.setItem('theme', theme);
+    }
+
+    function loadTheme() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light') {
+            document.body.classList.add('light-mode');
+            themeToggle.checked = true;
+        } else {
+            document.body.classList.remove('light-mode');
+            themeToggle.checked = false;
+        }
+    }
+    
+    // =================================================================================
+    // Chat History Logic (using localStorage)
+    // =================================================================================
+    function getHistory() {
+        const history = localStorage.getItem(`chatHistory_${currentUser.uid}`);
+        return history ? JSON.parse(history) : [];
+    }
+    
+    function saveHistory(history) {
+        localStorage.setItem(`chatHistory_${currentUser.uid}`, JSON.stringify(history));
+    }
+
+    function saveCurrentChat() {
+        if (currentChat.length > 1) { // Only save non-empty chats
+            const history = getHistory();
+            const userMessages = currentChat.filter(m => m.sender === 'user');
+            const title = userMessages.length > 0 ? userMessages[0].text : "Chat";
+            history.unshift({
+                id: Date.now(),
+                title: title.substring(0, 40) + (title.length > 40 ? '...' : ''),
+                messages: currentChat
+            });
+            // Keep only the last 20 chats
+            saveHistory(history.slice(0, 20));
+            currentChat = []; // Reset current chat
+        }
+    }
+
+    function renderChatHistory() {
+        chatHistoryList.innerHTML = '';
+        const history = getHistory();
+        noHistoryMessage.style.display = history.length === 0 ? 'block' : 'none';
+
+        history.forEach(chat => {
+            const li = document.createElement('li');
+            li.className = 'history-item';
+            li.innerHTML = `
+                <span class="history-title">${chat.title}</span>
+                <div class="history-actions">
+                    <button class="view-btn" title="View"><i class="fas fa-eye"></i></button>
+                    <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            li.querySelector('.view-btn').addEventListener('click', () => loadChatFromHistory(chat.id));
+            li.querySelector('.delete-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteChatFromHistory(chat.id);
+            });
+            chatHistoryList.appendChild(li);
         });
-    </script>
+    }
+
+    function loadChatFromHistory(chatId) {
+        const history = getHistory();
+        const chat = history.find(c => c.id === chatId);
+        if (chat) {
+            navigateTo('chat');
+            chatMessages.innerHTML = '';
+            currentChat = []; // Important to clear before loading
+            chat.messages.forEach(msg => addMessage(msg.text, msg.sender));
+        }
+    }
+    
+    function deleteChatFromHistory(chatId) {
+        let history = getHistory();
+        history = history.filter(c => c.id !== chatId);
+        saveHistory(history);
+        renderChatHistory(); // Re-render the list
+    }
+
+    // =================================================================================
+    // Start the App
+    // =================================================================================
+    setupEventListeners();
+
+</script>
 </body>
 </html>
