@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Squid AI</title>
+    <title>Squid AI - Enhanced Settings</title>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6188470185582355"
      crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -340,7 +340,7 @@
         }
 
         /* Main Content & Containers */
-        .main-content, .chat-container, .settings-container {
+        .main-content, .chat-container, .settings-container, .game-container {
             position: absolute;
             top: 0;
             left: 0;
@@ -515,6 +515,14 @@
             text-align: right; 
             font-weight: 300;
         }
+        
+        /* MERGED: Style for images in messages */
+        .message-image {
+            max-width: 100%;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            display: block;
+        }
 
         .typing-indicator {
             display: flex; 
@@ -554,6 +562,7 @@
             padding: 20px; 
             display: flex; 
             align-items: center;
+            gap: 15px; /* MERGED: Added gap for buttons */
             background: var(--glass-bg); 
             border-top: 1px solid var(--glass-border);
             backdrop-filter: blur(10px);
@@ -584,7 +593,6 @@
             background: linear-gradient(135deg, var(--primary), #7a2fff); 
             border: none;
             color: white; 
-            margin-left: 15px; 
             display: flex; 
             justify-content: center; 
             align-items: center;
@@ -592,12 +600,80 @@
             transition: all 0.3s ease; 
             font-size: 20px; 
             box-shadow: 0 5px 15px rgba(157, 77, 255, 0.3);
+            flex-shrink: 0; /* MERGED: Prevent button from shrinking */
         }
         
         .send-button:hover {
             transform: scale(1.08) rotate(10deg);
             box-shadow: 0 7px 20px rgba(157, 77, 255, 0.4);
         }
+        
+        /* MERGED: Attachment button styles */
+        .attachment-button {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .attachment-button:hover {
+            background: rgba(157, 77, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* MERGED: Image Preview styles */
+        #hindiImagePreviewContainer {
+            padding: 0 20px 10px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: flex-start;
+        }
+        .image-preview {
+            position: relative;
+            display: inline-block;
+            background: var(--input-bg);
+            padding: 8px;
+            border-radius: 12px;
+        }
+        .image-preview img {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 8px;
+            display: block;
+        }
+        .remove-preview-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 22px;
+            height: 22px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .remove-preview-btn:hover {
+            transform: scale(1.1);
+        }
+
 
         /* Bottom Navigation */
         .bottom-nav {
@@ -691,6 +767,13 @@
             border-radius: var(--border-radius);
             border: 1px solid var(--glass-border);
             backdrop-filter: blur(5px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-item:hover {
+            transform: translateX(5px);
+            background: rgba(157, 77, 255, 0.1);
         }
         
         .settings-item label { 
@@ -699,6 +782,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            cursor: pointer;
         }
         
         .settings-item i {
@@ -795,6 +879,7 @@
             transition: all 0.3s ease;
             border: 1px solid var(--glass-border);
             backdrop-filter: blur(5px);
+            position: relative;
         }
         
         .history-item:hover { 
@@ -809,6 +894,16 @@
             text-overflow: ellipsis; 
             max-width: 70%;
             font-weight: 500;
+        }
+
+        .lang-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
         }
         
         .history-actions button {
@@ -839,7 +934,172 @@
             font-style: italic;
         }
         
-
+        /* IQ Game Container */
+        .game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .game-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 3px 8px rgba(157, 77, 255, 0.2));
+        }
+        
+        .round-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .timer-display {
+            font-size: 18px;
+            margin: 10px 0 20px;
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .emoji-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .emoji {
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .emoji:hover {
+            transform: scale(1.1);
+            background: rgba(157, 77, 255, 0.2);
+        }
+        
+        .game-button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background: linear-gradient(135deg, var(--primary), #7a2fff);
+            border: none;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(157, 77, 255, 0.3);
+        }
+        
+        .game-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(157, 77, 255, 0.5);
+        }
+        
+        .iq-result {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent), #00c6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* New Settings Pages */
+        .info-container {
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+            padding: 25px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .info-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .info-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .info-header i {
+            color: var(--primary);
+            font-size: 28px;
+        }
+        
+        .info-content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border);
+            line-height: 1.7;
+            backdrop-filter: blur(5px);
+        }
+        
+        .info-content h3 {
+            color: var(--primary);
+            margin: 20px 0 10px;
+            font-size: 20px;
+        }
+        
+        .info-content ul {
+            padding-left: 25px;
+            margin: 10px 0;
+        }
+        
+        .info-content li {
+            margin-bottom: 8px;
+        }
+        
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+            width: fit-content;
+        }
+        
+        .back-button:hover {
+            background: rgba(157, 77, 255, 0.1);
+            transform: translateX(-5px);
+        }
+        
+        .highlight-box {
+            background: rgba(157, 77, 255, 0.1);
+            border-left: 3px solid var(--primary);
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            margin: 15px 0;
+        }
+        
         /* Animations */
         @keyframes typingAnimation { 
             0%, 60%, 100% { transform: translateY(0); } 
@@ -901,6 +1161,11 @@
             .chat-messages {
                 padding: 15px;
             }
+            
+            .emoji {
+                font-size: 2rem;
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -923,7 +1188,6 @@
                 <i class="fas fa-lock"></i>
                 <input type="password" class="login-input" id="passwordInput" placeholder="Password" autocomplete="current-password">
             </div>
-            <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
             <div class="error-message" id="generalError"></div>
             <button class="login-button" id="authButton">Log In</button>
             <div class="form-footer">
@@ -936,7 +1200,7 @@
         <div class="app-header">
             <div class="logo-container">
                 <div class="app-logo">🦑</div>
-                <div class="app-title">Squid AI</div>
+                <div class="app-title" id="appTitle">Squid AI</div>
             </div>
             <button class="header-icon" id="settingsButton" title="Settings">
                 <i class="fas fa-cog"></i>
@@ -949,12 +1213,14 @@
                 <div class="welcome-text">Where should we start?</div>
                 <div class="action-buttons">
                     <button class="action-button" id="chatButton"><span class="icon">💬</span> Start a new chat</button>
-                    <button class="action-button" id="learnButton"><span class="icon">🧠</span> Learn about AI</button>
+                    <button class="action-button" id="hindiChatButton"><span class="icon">🇮🇳</span> Chat in Hindi</button>
+                    <button class="action-button" id="iqButton"><span class="icon">🧠</span> IQ Calculator</button>
+                    <button class="action-button" id="learnButton"><span class="icon">📚</span> Learn about AI</button>
                     <button class="action-button" id="codeButton"><span class="icon"><i class="fas fa-code"></i></span> Create Codes</button>
                 </div>
             </div>
 
-            <!-- Chat Container -->
+            <!-- Chat Container (English) -->
             <div class="chat-container" id="chatContainer">
                 <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-input-container">
@@ -962,10 +1228,43 @@
                     <button class="send-button" id="sendButton"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
+
+            <!-- MERGED: Chat Container (Hindi) with image upload features -->
+            <div class="chat-container" id="hindiChatContainer">
+                <div class="chat-messages" id="hindiChatMessages"></div>
+                <!-- Image Preview Container -->
+                <div id="hindiImagePreviewContainer"></div>
+                <div class="chat-input-container">
+                    <!-- Attachment Button -->
+                    <button class="attachment-button" id="hindiAttachmentButton" title="Attach image">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <!-- Hidden File Input -->
+                    <input type="file" id="hindiFileInput" accept="image/jpeg, image/png, image/webp" style="display: none;">
+                    <input type="text" class="chat-input" id="hindiChatInput" placeholder="छवि के साथ कुछ पूछें...">
+                    <button class="send-button" id="hindiSendButton"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
             
             <!-- Settings Container -->
             <div class="settings-container" id="settingsContainer">
                 <h2 class="settings-header"><i class="fas fa-cog"></i> Settings</h2>
+                
+                <div class="settings-item" id="howToUseBtn">
+                    <label><i class="fas fa-book"></i> How to Use</label>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                
+                <div class="settings-item" id="privacyPolicyBtn">
+                    <label><i class="fas fa-shield-alt"></i> Privacy Policy</label>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                
+                <div class="settings-item" id="securityBtn">
+                    <label><i class="fas fa-lock"></i> Security</label>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                
                 <div class="settings-item">
                     <label for="themeToggle"><i class="fas fa-sun"></i> Light Mode</label>
                     <label class="theme-switch">
@@ -973,14 +1272,172 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+                
                 <div>
                     <h3 class="settings-header" style="margin-top: 20px; font-size: 20px;"><i class="fas fa-history"></i> Chat History</h3>
                      <ul id="chatHistoryList"></ul>
                      <p id="noHistoryMessage" style="display: none;">No saved chats yet.</p>
                 </div>
+                
                 <div class="settings-item" style="background: none; padding: 0; margin-top: auto;">
                     <button class="logout-button" id="logoutButton">Log Out</button>
                 </div>
+            </div>
+            
+            <!-- How to Use Container -->
+            <div class="info-container" id="howToUseContainer">
+                <div class="info-header">
+                    <i class="fas fa-book"></i>
+                    <h2>How to Use Squid AI</h2>
+                </div>
+                
+                <div class="info-content">
+                    <p>Welcome to Squid AI! Here's how to make the most of your experience:</p>
+                    
+                    <h3>Getting Started</h3>
+                    <ul>
+                        <li><strong>New Chat</strong>: Tap the "New Chat" button to start a conversation</li>
+                        <li><strong>Hindi Chat</strong>: Select "Chat in Hindi" for conversations in Hindi</li>
+                        <li><strong>IQ Test</strong>: Try our fun IQ calculator game under "IQ Calculator"</li>
+                    </ul>
+                    
+                    <h3>Chat Features</h3>
+                    <ul>
+                        <li>Type your message and press Enter or tap the send button</li>
+                        <li>View your chat history in the Settings menu</li>
+                        <li>Switch between English and Hindi chats anytime</li>
+                        <li>In Hindi chat, tap the paperclip icon <i class="fas fa-paperclip"></i> to analyze photos</li>
+                    </ul>
+                    
+                    <div class="highlight-box">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Pro Tip</strong>: Use specific questions to get the most accurate answers from Squid AI. For example: "Explain quantum computing in simple terms" or "Write a Python function to calculate factorial".</p>
+                    </div>
+                    
+                    <h3>Daily Limits</h3>
+                    <p>To ensure fair usage for everyone:</p>
+                    <ul>
+                        <li>Hindi chats are limited to 100 messages per day</li>
+                        <li>English chats have no daily limits</li>
+                        <li>IQ game can be played unlimited times</li>
+                    </ul>
+                    
+                    <button class="back-button" id="backFromHowToUse">
+                        <i class="fas fa-arrow-left"></i> Back to Settings
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Privacy Policy Container -->
+            <div class="info-container" id="privacyPolicyContainer">
+                <div class="info-header">
+                    <i class="fas fa-shield-alt"></i>
+                    <h2>Privacy Policy</h2>
+                </div>
+                
+                <div class="info-content">
+                    <p>Your privacy is important to us. This policy explains how we handle your information:</p>
+                    
+                    <h3>Data Collection</h3>
+                    <p>We collect the following information:</p>
+                    <ul>
+                        <li>Email address for authentication purposes</li>
+                        <li>Chat history stored locally on your device</li>
+                        <li>Usage statistics (without personal identifiers)</li>
+                    </ul>
+                    
+                    <h3>Data Usage</h3>
+                    <p>Your data is used to:</p>
+                    <ul>
+                        <li>Provide and improve our services</li>
+                        <li>Personalize your experience</li>
+                        <li>Maintain security and prevent abuse</li>
+                    </ul>
+                    
+                    <div class="highlight-box">
+                        <p><i class="fas fa-exclamation-triangle"></i> <strong>Important</strong>: We never sell your personal data to third parties. Your chat history remains on your device unless you choose to share it.</p>
+                    </div>
+                    
+                    <h3>Data Storage</h3>
+                    <p>All your data is stored securely:</p>
+                    <ul>
+                        <li>Authentication handled by Firebase</li>
+                        <li>Chat history stored in your browser's local storage</li>
+                        <li>No personal data stored on our servers</li>
+                        <li>Uploaded images are processed temporarily and never stored</li>
+                    </ul>
+                    
+                    <h3>Changes to This Policy</h3>
+                    <p>We may update this policy occasionally. Continued use of Squid AI constitutes acceptance of these changes.</p>
+                    
+                    <button class="back-button" id="backFromPrivacyPolicy">
+                        <i class="fas fa-arrow-left"></i> Back to Settings
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Security Container -->
+            <div class="info-container" id="securityContainer">
+                <div class="info-header">
+                    <i class="fas fa-lock"></i>
+                    <h2>Security Information</h2>
+                </div>
+                
+                <div class="info-content">
+                    <p>Squid AI is built with security as a top priority. Here's how we protect you:</p>
+                    
+                    <h3>Data Protection</h3>
+                    <ul>
+                        <li>End-to-end encryption for all communications</li>
+                        <li>Secure authentication via Firebase</li>
+                        <li>Regular security audits of our codebase</li>
+                    </ul>
+                    
+                    <h3>Your Responsibilities</h3>
+                    <p>To maintain your security:</p>
+                    <ul>
+                        <li>Use a strong, unique password</li>
+                        <li>Never share your login credentials</li>
+                        <li>Log out when using shared devices</li>
+                        <li>Keep your device software updated</li>
+                    </ul>
+                    
+                    <div class="highlight-box">
+                        <p><i class="fas fa-shield-alt"></i> <strong>Security Tip</strong>: Squid AI will never ask for your password outside of the login screen. Be wary of any messages requesting personal information.</p>
+                    </div>
+                    
+                    <h3>API Security</h3>
+                    <p>Our AI integrations are secured through:</p>
+                    <ul>
+                        <li>API key encryption and rotation</li>
+                        <li>Strict rate limiting to prevent abuse</li>
+                        <li>Regular monitoring of API usage patterns</li>
+                    </ul>
+                    
+                    <h3>Reporting Security Issues</h3>
+                    <p>If you discover a security vulnerability:</p>
+                    <ol>
+                        <li>Do not publicly disclose the issue</li>
+                        <li>Contact our security team at security@squidai.app</li>
+                        <li>Provide detailed steps to reproduce the issue</li>
+                    </ol>
+                    
+                    <p>We appreciate responsible disclosure and will respond promptly to all valid reports.</p>
+                    
+                    <button class="back-button" id="backFromSecurity">
+                        <i class="fas fa-arrow-left"></i> Back to Settings
+                    </button>
+                </div>
+            </div>
+            
+            <!-- IQ Game Container -->
+            <div class="game-container" id="gameContainer">
+                <div class="game-title">🧠 Emoji IQ Finder</div>
+                <div class="round-title" id="roundTitle">Tap the correct emoji!</div>
+                <div class="timer-display" id="timerDisplay">⏱️ Time: 5</div>
+                <div class="emoji-container" id="emojiContainer"></div>
+                <button class="game-button" id="startGameButton">Start Game</button>
+                <div class="iq-result" id="iqResult"></div>
+                <button class="game-button" id="restartGameButton" style="display: none;">Play Again</button>
             </div>
         </div>
 
@@ -998,10 +1455,15 @@
 
 <script>
     // =================================================================================
-    // IMPORTANT: Configuration - Updated to Cohere
+    // IMPORTANT: Configuration
     // =================================================================================
-    const COHERE_API_KEY = "bpSstiCTmvYvzPE396HFKbZABWTA8JfBpkHWMujA"; // Cohere API key
+    const COHERE_API_KEY = "bpSstiCTmvYvzPE396HFKbZABWTA8JfBpkHWMujA";
     const COHERE_API_ENDPOINT = "https://api.cohere.ai/v1/chat";
+    
+    const GEMINI_API_KEY = "AIzaSyBmzGutz28iMiRQSB8bZ78_HrlQpEb1qQs"; 
+    // MERGED: Using powerful multimodal model
+    const GEMINI_MODEL = "gemini-1.5-flash-latest";
+    const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
     
     const firebaseConfig = {
       apiKey: "AIzaSyCnS5bEqwCJHSwUkDbA3gWBRvL3o5OIrrw",
@@ -1036,10 +1498,12 @@
     const mainContent = document.getElementById('mainContent');
     const chatContainer = document.getElementById('chatContainer');
     const settingsContainer = document.getElementById('settingsContainer');
+    const gameContainer = document.getElementById('gameContainer');
     const chatMessages = document.getElementById('chatMessages');
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
     const chatButton = document.getElementById('chatButton');
+    const iqButton = document.getElementById('iqButton');
     const learnButton = document.getElementById('learnButton');
     const codeButton = document.getElementById('codeButton');
     const homeNav = document.getElementById('homeNav');
@@ -1047,7 +1511,36 @@
     const themeToggle = document.getElementById('themeToggle');
     const chatHistoryList = document.getElementById('chatHistoryList');
     const noHistoryMessage = document.getElementById('noHistoryMessage');
+    const appTitle = document.getElementById('appTitle');
 
+    // MERGED: DOM elements for Hindi Chat and File Upload
+    const hindiChatButton = document.getElementById('hindiChatButton');
+    const hindiChatContainer = document.getElementById('hindiChatContainer');
+    const hindiChatMessages = document.getElementById('hindiChatMessages');
+    const hindiChatInput = document.getElementById('hindiChatInput');
+    const hindiSendButton = document.getElementById('hindiSendButton');
+    const hindiAttachmentButton = document.getElementById('hindiAttachmentButton');
+    const hindiFileInput = document.getElementById('hindiFileInput');
+    const hindiImagePreviewContainer = document.getElementById('hindiImagePreviewContainer');
+    
+    // IQ Game
+    const roundTitle = document.getElementById('roundTitle');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const emojiContainer = document.getElementById('emojiContainer');
+    const startGameButton = document.getElementById('startGameButton');
+    const restartGameButton = document.getElementById('restartGameButton');
+    const iqResult = document.getElementById('iqResult');
+    
+    // New Settings Pages
+    const howToUseBtn = document.getElementById('howToUseBtn');
+    const privacyPolicyBtn = document.getElementById('privacyPolicyBtn');
+    const securityBtn = document.getElementById('securityBtn');
+    const howToUseContainer = document.getElementById('howToUseContainer');
+    const privacyPolicyContainer = document.getElementById('privacyPolicyContainer');
+    const securityContainer = document.getElementById('securityContainer');
+    const backFromHowToUse = document.getElementById('backFromHowToUse');
+    const backFromPrivacyPolicy = document.getElementById('backFromPrivacyPolicy');
+    const backFromSecurity = document.getElementById('backFromSecurity');
     
     // =================================================================================
     // App State
@@ -1055,7 +1548,32 @@
     let currentUser = null;
     let isTyping = false;
     let isSignupMode = false;
-    let currentChat = []; // To hold messages of the current session { text, sender }
+    let currentChat = [];
+    let currentHindiChat = [];
+    let activeChatType = 'english';
+    let selectedHindiFile = null; // MERGED: To store selected file for Hindi chat
+    
+    // IQ Game State
+    const rounds = [
+        { correct: "😀", options: ["😀", "😠", "😎", "😢"] },
+        { correct: "🐶", options: ["🐱", "🐶", "🐭", "🐰"] },
+        { correct: "🍎", options: ["🍎", "🍌", "🍇", "🍉"] },
+        { correct: "🚗", options: ["🚌", "🚗", "🚕", "🚓"] },
+        { correct: "🌞", options: ["🌞", "🌜", "⭐", "☁️"] },
+        { correct: "❤️", options: ["💙", "💛", "💜", "❤️"] },
+        { correct: "🙁", options: ["😕", "🙁", "😒", "😏"] },
+        { correct: "😟", options: ["😟", "😑", "😐", "😮"] },
+        { correct: "😕", options: ["😏", "😕", "😒", "🙁"] },
+        { correct: "😒", options: ["😒", "😐", "😏", "🙃"] }
+    ];
+
+    const easyTime = 5;
+    const hardTime = 3;
+
+    let currentRound = 0;
+    let gameScore = 0;
+    let gameTimer;
+    let timeLeft;
 
     // =================================================================================
     // Main App Logic & Authentication
@@ -1081,17 +1599,42 @@
         logoutButton.addEventListener('click', handleLogout);
         settingsButton.addEventListener('click', () => navigateTo('settings'));
         
+        // English Chat Listeners
         chatInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !isTyping) sendMessage(); });
         sendButton.addEventListener('click', () => { if (!isTyping) sendMessage(); });
 
+        // Preset Listeners
         chatButton.addEventListener('click', () => startChat());
+        iqButton.addEventListener('click', () => navigateTo('game'));
         learnButton.addEventListener('click', () => startPresetChat("learn"));
         codeButton.addEventListener('click', () => startPresetChat("code"));
         
+        // MERGED: Hindi Chat & File Upload Listeners
+        hindiChatButton.addEventListener('click', () => startHindiChat());
+        hindiChatInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !isTyping) sendHindiMessage(); });
+        hindiSendButton.addEventListener('click', () => { if (!isTyping) sendHindiMessage(); });
+        hindiAttachmentButton.addEventListener('click', () => hindiFileInput.click());
+        hindiFileInput.addEventListener('change', handleHindiFileSelect);
+
+
+        // Navigation
         homeNav.addEventListener('click', () => navigateTo('home'));
         newChatNav.addEventListener('click', () => startChat());
         
+        // Theme
         themeToggle.addEventListener('change', toggleTheme);
+        
+        // IQ Game Listeners
+        startGameButton.addEventListener('click', startGame);
+        restartGameButton.addEventListener('click', startGame);
+        
+        // New Settings Page Listeners
+        howToUseBtn.addEventListener('click', () => showInfoPage('howToUse'));
+        privacyPolicyBtn.addEventListener('click', () => showInfoPage('privacyPolicy'));
+        securityBtn.addEventListener('click', () => showInfoPage('security'));
+        backFromHowToUse.addEventListener('click', () => navigateTo('settings'));
+        backFromPrivacyPolicy.addEventListener('click', () => navigateTo('settings'));
+        backFromSecurity.addEventListener('click', () => navigateTo('settings'));
     }
     
     function showLogin() {
@@ -1154,7 +1697,7 @@
     }
     
     function handleLogout() {
-        saveCurrentChat(); // Save chat before logging out
+        saveActiveChat();
         auth.signOut();
     }
 
@@ -1173,19 +1716,26 @@
     }
 
     // =================================================================================
-    // Navigation, Chat, and Settings Logic - Updated to Cohere
+    // Navigation Logic
     // =================================================================================
 
     function navigateTo(section) {
         // Save chat when navigating away
-        if (chatContainer.style.display === 'flex' && section !== 'chat') {
-            saveCurrentChat();
+        if (chatContainer.style.display === 'flex' || hindiChatContainer.style.display === 'flex') {
+            if (section !== 'chat' && section !== 'hindiChat') {
+                saveActiveChat();
+            }
         }
         
-        // Hide all main views
+        // Hide all views
         mainContent.style.display = 'none';
         chatContainer.style.display = 'none';
+        hindiChatContainer.style.display = 'none';
         settingsContainer.style.display = 'none';
+        gameContainer.style.display = 'none';
+        howToUseContainer.style.display = 'none';
+        privacyPolicyContainer.style.display = 'none';
+        securityContainer.style.display = 'none';
         
         // Update nav item active state
         homeNav.classList.remove('active');
@@ -1193,18 +1743,55 @@
 
         // Show the selected view
         if (section === 'home') {
+            appTitle.textContent = "Squid AI";
             mainContent.style.display = 'flex';
             homeNav.classList.add('active');
         } else if (section === 'chat') {
+            appTitle.textContent = "Squid AI";
             chatContainer.style.display = 'flex';
             newChatNav.classList.add('active');
+            activeChatType = 'english';
+        } else if (section === 'hindiChat') {
+            appTitle.textContent = "Squid AI";
+            hindiChatContainer.style.display = 'flex';
+            newChatNav.classList.add('active');
+            activeChatType = 'hindi';
         } else if (section === 'settings') {
+            appTitle.textContent = "Squid AI";
             settingsContainer.style.display = 'flex';
-            homeNav.classList.add('active'); // Keep home active for settings
+            homeNav.classList.add('active');
             renderChatHistory();
+        } else if (section === 'game') {
+            appTitle.textContent = "IQ Calculator";
+            gameContainer.style.display = 'flex';
+            homeNav.classList.add('active');
+            resetGame();
+        }
+    }
+    
+    function showInfoPage(page) {
+        // Hide all pages
+        settingsContainer.style.display = 'none';
+        howToUseContainer.style.display = 'none';
+        privacyPolicyContainer.style.display = 'none';
+        securityContainer.style.display = 'none';
+        
+        // Show the requested page
+        if (page === 'howToUse') {
+            howToUseContainer.style.display = 'flex';
+            appTitle.textContent = "How to Use";
+        } else if (page === 'privacyPolicy') {
+            privacyPolicyContainer.style.display = 'flex';
+            appTitle.textContent = "Privacy Policy";
+        } else if (page === 'security') {
+            securityContainer.style.display = 'flex';
+            appTitle.textContent = "Security";
         }
     }
 
+    // =================================================================================
+    // English Chat Functions
+    // =================================================================================
     function startChat() {
         navigateTo('chat');
         chatMessages.innerHTML = '';
@@ -1244,29 +1831,16 @@
         simulateTyping();
         
         try {
-            // Format messages for Cohere API
-            const chatHistory = currentChat.map(msg => {
-                return {
-                    role: msg.sender === 'user' ? "USER" : "CHATBOT",
-                    message: msg.text
-                };
-            });
-
-            // Remove last message (current prompt) since it's included separately
+            const chatHistory = currentChat.map(msg => ({
+                role: msg.sender === 'user' ? "USER" : "CHATBOT",
+                message: msg.text
+            }));
             chatHistory.pop();
 
             const response = await fetch(COHERE_API_ENDPOINT, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${COHERE_API_KEY}`
-                },
-                body: JSON.stringify({
-                    message: prompt,
-                    chat_history: chatHistory,
-                    model: "command-r-plus",
-                    temperature: 0.7
-                })
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${COHERE_API_KEY}` },
+                body: JSON.stringify({ message: prompt, chat_history: chatHistory, model: "command-r-plus", temperature: 0.7 })
             });
             
             removeTypingIndicator();
@@ -1276,11 +1850,9 @@
             }
             const data = await response.json();
             
-            if (data.text) {
-                addMessage(data.text, 'ai');
-            } else {
-                 addMessage("I'm having trouble understanding. Could you please rephrase?", 'ai');
-            }
+            if (data.text) addMessage(data.text, 'ai');
+            else addMessage("I'm having trouble understanding. Could you please rephrase?", 'ai');
+
         } catch (error) {
             console.error('Cohere API Error:', error);
             removeTypingIndicator();
@@ -1291,7 +1863,6 @@
     }
 
     function addMessage(text, sender) {
-        // Add to state and UI
         currentChat.push({ text, sender });
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', `${sender}-message`);
@@ -1319,6 +1890,260 @@
     }
     
     // =================================================================================
+    // MERGED: Hindi Chat Functions with Image Analysis
+    // =================================================================================
+    function startHindiChat() {
+        navigateTo('hindiChat');
+        hindiChatMessages.innerHTML = '';
+        currentHindiChat = [];
+        clearHindiPreview(); // Clear any previous previews
+        addHindiMessage("नमस्ते! मैं स्क्विड एआई हूँ। आप कोई तस्वीर भेज सकते हैं या मुझसे कुछ पूछ सकते हैं।", 'ai');
+    }
+
+    async function sendHindiMessage() {
+        const messageText = hindiChatInput.value.trim();
+        const fileToSend = selectedHindiFile;
+
+        if ((!messageText && !fileToSend) || isTyping) return;
+
+        addHindiMessage(messageText, 'user', fileToSend ? fileToSend.base64 : null);
+        hindiChatInput.value = '';
+        clearHindiPreview();
+        
+        await getGeminiResponse(messageText, fileToSend);
+    }
+    
+    function handleHindiFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!validImageTypes.includes(file.type)) {
+            alert('Please select a valid image file (JPEG, PNG, or WEBP).');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedHindiFile = {
+                base64: e.target.result,
+                mimeType: file.type
+            };
+            displayHindiImagePreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function displayHindiImagePreview(imageDataUrl) {
+        hindiImagePreviewContainer.innerHTML = `
+            <div class="image-preview">
+                <button class="remove-preview-btn" title="Remove image">×</button>
+                <img src="${imageDataUrl}" alt="Image preview">
+            </div>
+        `;
+        hindiImagePreviewContainer.querySelector('.remove-preview-btn').addEventListener('click', clearHindiPreview);
+    }
+
+    function clearHindiPreview() {
+        selectedHindiFile = null;
+        hindiFileInput.value = ''; // Reset the file input
+        hindiImagePreviewContainer.innerHTML = '';
+    }
+
+    async function getGeminiResponse(prompt, file) {
+        if (!checkAndIncrementHindiUsage()) {
+            addHindiMessage("आज के लिए आपकी फ्री लिमिट समाप्त हो गई है। कृपया कल फिर प्रयास करें।\n(Your free daily limit has been reached. Please try again tomorrow.)", 'ai');
+            return;
+        }
+
+        isTyping = true;
+        simulateHindiTyping();
+        
+        try {
+            // Construct the parts for the multimodal request
+            const parts = [];
+            if (prompt) {
+                parts.push({ text: prompt });
+            }
+            if (file) {
+                parts.push({
+                    inline_data: {
+                        mime_type: file.mimeType,
+                        data: file.base64.split(',')[1] // Remove the Data URL prefix
+                    }
+                });
+            }
+
+            const response = await fetch(GEMINI_API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: parts }]
+                })
+            });
+            
+            removeHindiTypingIndicator();
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error.message || `API Error: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "माफ़ कीजिये, मुझे कोई प्रतिक्रिया नहीं मिली।";
+            addHindiMessage(aiReply, 'ai');
+
+        } catch (error) {
+            console.error('Gemini API Error:', error);
+            removeHindiTypingIndicator();
+            addHindiMessage("माफ़ कीजिये, एक त्रुटि हुई: " + error.message, 'ai');
+        } finally {
+            isTyping = false;
+        }
+    }
+
+    function addHindiMessage(text, sender, imageUrl = null) {
+        currentHindiChat.push({ text, sender, imageUrl });
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', `${sender}-message`);
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        let messageContent = '';
+
+        if (imageUrl) {
+            messageContent += `<img src="${imageUrl}" class="message-image" alt="User upload">`;
+        }
+
+        if (text) {
+            const textNode = document.createElement('div');
+            textNode.innerText = text;
+            messageContent += `<div>${textNode.innerHTML.replace(/\n/g, '<br>')}</div>`;
+        }
+        
+        messageElement.innerHTML = `${messageContent}<div class="message-time">${time}</div>`;
+        hindiChatMessages.appendChild(messageElement);
+        hindiChatMessages.scrollTop = hindiChatMessages.scrollHeight;
+    }
+
+    function simulateHindiTyping() {
+        const typingElement = document.createElement('div');
+        typingElement.classList.add('typing-indicator');
+        typingElement.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
+        hindiChatMessages.appendChild(typingElement);
+        hindiChatMessages.scrollTop = hindiChatMessages.scrollHeight;
+    }
+
+    function removeHindiTypingIndicator() {
+        const typingIndicator = hindiChatMessages.querySelector('.typing-indicator');
+        if (typingIndicator) typingIndicator.remove();
+    }
+
+    function checkAndIncrementHindiUsage() {
+        if (!currentUser) return false;
+        const limit = 100;
+        const usageKey = `hindiUsage_${currentUser.uid}`;
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        const usageData = JSON.parse(localStorage.getItem(usageKey) || '{}');
+        const todaysCount = usageData[todayStr] || 0;
+
+        if (todaysCount >= limit) {
+            console.warn(`Hindi chat daily limit of ${limit} reached for user.`);
+            return false;
+        }
+
+        usageData[todayStr] = todaysCount + 1;
+        localStorage.setItem(usageKey, JSON.stringify(usageData));
+        return true;
+    }
+
+    // =================================================================================
+    // IQ Game Functions
+    // =================================================================================
+    function resetGame() {
+        currentRound = 0;
+        gameScore = 0;
+        startGameButton.style.display = 'block';
+        restartGameButton.style.display = 'none';
+        iqResult.textContent = '';
+        roundTitle.textContent = 'Tap the correct emoji!';
+        timerDisplay.textContent = '⏱️ Time: 5';
+        emojiContainer.innerHTML = '';
+    }
+
+    function startGame() {
+        currentRound = 0;
+        gameScore = 0;
+        startGameButton.style.display = 'none';
+        restartGameButton.style.display = 'none';
+        iqResult.textContent = '';
+        nextRound();
+    }
+
+    function nextRound() {
+        if (currentRound >= rounds.length) {
+            endGame();
+            return;
+        }
+
+        const round = rounds[currentRound];
+        roundTitle.textContent = `Round ${currentRound + 1}: Tap ${round.correct}`;
+        emojiContainer.innerHTML = '';
+        round.options.sort(() => Math.random() - 0.5);
+        round.options.forEach(emoji => {
+            const span = document.createElement("span");
+            span.textContent = emoji;
+            span.className = "emoji";
+            span.onclick = () => handleAnswer(emoji);
+            emojiContainer.appendChild(span);
+        });
+
+        // Set time per round
+        timeLeft = currentRound >= 6 ? hardTime : easyTime;
+        updateTimer();
+        gameTimer = setInterval(() => {
+            timeLeft--;
+            updateTimer();
+            if (timeLeft <= 0) {
+                clearInterval(gameTimer);
+                currentRound++;
+                nextRound();
+            }
+        }, 1000);
+    }
+
+    function updateTimer() {
+        timerDisplay.textContent = `⏱️ Time: ${timeLeft}`;
+    }
+
+    function handleAnswer(emoji) {
+        const round = rounds[currentRound];
+        if (emoji === round.correct) gameScore++;
+        clearInterval(gameTimer);
+        currentRound++;
+        nextRound();
+    }
+
+    function endGame() {
+        emojiContainer.innerHTML = '';
+        roundTitle.textContent = "Game Over!";
+        timerDisplay.textContent = "";
+
+        let iq;
+        if (gameScore <= 3) iq = randomBetween(100, 110);
+        else if (gameScore <= 6) iq = randomBetween(111, 125);
+        else if (gameScore <= 8) iq = randomBetween(126, 139);
+        else iq = randomBetween(140, 150);
+
+        iqResult.textContent = `🧠 Your IQ is: ${iq}`;
+        restartGameButton.style.display = 'block';
+    }
+
+    function randomBetween(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // =================================================================================
     // Theme Persistence
     // =================================================================================
     function toggleTheme() {
@@ -1339,30 +2164,48 @@
     }
     
     // =================================================================================
-    // Chat History Logic (using localStorage)
+    // Chat History Logic
     // =================================================================================
     function getHistory() {
+        if (!currentUser) return [];
         const history = localStorage.getItem(`chatHistory_${currentUser.uid}`);
         return history ? JSON.parse(history) : [];
     }
     
     function saveHistory(history) {
+        if (!currentUser) return;
         localStorage.setItem(`chatHistory_${currentUser.uid}`, JSON.stringify(history));
     }
 
-    function saveCurrentChat() {
-        if (currentChat.length > 1) { // Only save non-empty chats
+    function saveActiveChat() {
+        const chatToSave = activeChatType === 'hindi' ? currentHindiChat : currentChat;
+        if (chatToSave.length > 1) { // Only save non-empty chats
             const history = getHistory();
-            const userMessages = currentChat.filter(m => m.sender === 'user');
-            const title = userMessages.length > 0 ? userMessages[0].text : "Chat";
+            const userMessages = chatToSave.filter(m => m.sender === 'user');
+            
+            // Generate a title
+            let title = "Chat"; // Default title
+            if (userMessages.length > 0) {
+                 title = userMessages[0].text || (userMessages[0].imageUrl ? "Image Chat" : "Chat");
+            } else {
+                 title = (activeChatType === 'hindi' ? "हिंदी चैट" : "Chat");
+            }
+            
             history.unshift({
                 id: Date.now(),
                 title: title.substring(0, 40) + (title.length > 40 ? '...' : ''),
-                messages: currentChat
+                messages: chatToSave,
+                lang: activeChatType === 'hindi' ? 'hi' : 'en'
             });
-            // Keep only the last 20 chats
+            
             saveHistory(history.slice(0, 20));
-            currentChat = []; // Reset current chat
+
+            // Reset the saved chat
+            if(activeChatType === 'hindi') {
+                currentHindiChat = [];
+                clearHindiPreview();
+            }
+            else currentChat = [];
         }
     }
 
@@ -1374,8 +2217,13 @@
         history.forEach(chat => {
             const li = document.createElement('li');
             li.className = 'history-item';
+            const langBadge = chat.lang === 'hi' ? '<span class="lang-badge">हि</span>' : '';
+
             li.innerHTML = `
-                <span class="history-title">${chat.title}</span>
+                <div style="display: flex; align-items: center; overflow: hidden;">
+                    ${langBadge}
+                    <span class="history-title">${chat.title}</span>
+                </div>
                 <div class="history-actions">
                     <button class="view-btn" title="View"><i class="fas fa-eye"></i></button>
                     <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
@@ -1394,10 +2242,18 @@
         const history = getHistory();
         const chat = history.find(c => c.id === chatId);
         if (chat) {
-            navigateTo('chat');
-            chatMessages.innerHTML = '';
-            currentChat = []; // Important to clear before loading
-            chat.messages.forEach(msg => addMessage(msg.text, msg.sender));
+            if (chat.lang === 'hi') {
+                navigateTo('hindiChat');
+                hindiChatMessages.innerHTML = '';
+                currentHindiChat = [];
+                clearHindiPreview();
+                chat.messages.forEach(msg => addHindiMessage(msg.text, msg.sender, msg.imageUrl));
+            } else {
+                navigateTo('chat');
+                chatMessages.innerHTML = '';
+                currentChat = [];
+                chat.messages.forEach(msg => addMessage(msg.text, msg.sender));
+            }
         }
     }
     
@@ -1405,7 +2261,7 @@
         let history = getHistory();
         history = history.filter(c => c.id !== chatId);
         saveHistory(history);
-        renderChatHistory(); // Re-render the list
+        renderChatHistory();
     }
 
     // =================================================================================
