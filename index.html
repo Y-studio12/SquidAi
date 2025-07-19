@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Squid AI - Enhanced Settings</title>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6188470185582355"
+    
+    <!-- Google Auto Ads (ONLY ONCE IN HEAD) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6188470185582355"
      crossorigin="anonymous"></script>
+    <script>
+     (adsbygoogle = window.adsbygoogle || []).push({
+          google_ad_client: "ca-pub-6188470185582355",
+          enable_page_level_ads: true
+     });
+    </script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Updated Firebase SDK v9 -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -1191,6 +1200,7 @@
                 padding: 10px 15px;
             }
         }
+
     </style>
 </head>
 <body>
@@ -2298,6 +2308,15 @@
     // Start the App
     // =================================================================================
     setupEventListeners();
+
+    // Initialize Auto Ads after page load
+    window.addEventListener('load', () => {
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("Auto ads initialization error:", e);
+        }
+    });
 
 </script>
 </body>
