@@ -7,9 +7,9 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6188470185582355"
      crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <!-- Updated Firebase SDK v9 -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <style>
         :root {
             --bg-dark: #0c0c14;
@@ -39,7 +39,6 @@
             --glass-border: rgba(0, 0, 0, 0.05);
             --glow: 0 0 20px rgba(145, 71, 255, 0.2);
         }
-
 
         * {
             margin: 0;
@@ -559,18 +558,20 @@
 
         /* Chat Input */
         .chat-input-container {
-            padding: 20px; 
+            padding: 15px 20px; 
             display: flex; 
             align-items: center;
-            gap: 15px; /* MERGED: Added gap for buttons */
+            gap: 10px;
             background: var(--glass-bg); 
             border-top: 1px solid var(--glass-border);
             backdrop-filter: blur(10px);
+            flex-wrap: wrap;
         }
 
         .chat-input {
             flex: 1; 
-            padding: 18px 25px; 
+            min-width: 50px;
+            padding: 15px 20px; 
             border: 1px solid var(--glass-border); 
             border-radius: 50px;
             background: var(--input-bg); 
@@ -587,8 +588,8 @@
         }
 
         .send-button {
-            width: 54px; 
-            height: 54px; 
+            width: 50px; 
+            height: 50px; 
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), #7a2fff); 
             border: none;
@@ -598,9 +599,9 @@
             align-items: center;
             cursor: pointer; 
             transition: all 0.3s ease; 
-            font-size: 20px; 
+            font-size: 18px; 
             box-shadow: 0 5px 15px rgba(157, 77, 255, 0.3);
-            flex-shrink: 0; /* MERGED: Prevent button from shrinking */
+            flex-shrink: 0;
         }
         
         .send-button:hover {
@@ -610,8 +611,8 @@
         
         /* MERGED: Attachment button styles */
         .attachment-button {
-            width: 54px;
-            height: 54px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: var(--input-bg);
             border: 1px solid var(--glass-border);
@@ -621,7 +622,7 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 20px;
+            font-size: 18px;
             flex-shrink: 0;
         }
         
@@ -673,7 +674,6 @@
         .remove-preview-btn:hover {
             transform: scale(1.1);
         }
-
 
         /* Bottom Navigation */
         .bottom-nav {
@@ -1166,6 +1166,30 @@
                 font-size: 2rem;
                 padding: 12px;
             }
+            
+            /* Hindi chat input adjustments */
+            .chat-input-container {
+                padding: 10px 15px;
+                gap: 8px;
+            }
+            
+            .chat-input {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+            
+            .attachment-button, .send-button {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 380px) {
+            .chat-input {
+                font-size: 13px;
+                padding: 10px 15px;
+            }
         }
     </style>
 </head>
@@ -1188,6 +1212,7 @@
                 <i class="fas fa-lock"></i>
                 <input type="password" class="login-input" id="passwordInput" placeholder="Password" autocomplete="current-password">
             </div>
+            <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
             <div class="error-message" id="generalError"></div>
             <button class="login-button" id="authButton">Log In</button>
             <div class="form-footer">
@@ -1229,7 +1254,7 @@
                 </div>
             </div>
 
-            <!-- MERGED: Chat Container (Hindi) with image upload features -->
+            <!-- Hindi Chat Container -->
             <div class="chat-container" id="hindiChatContainer">
                 <div class="chat-messages" id="hindiChatMessages"></div>
                 <!-- Image Preview Container -->
@@ -1461,23 +1486,24 @@
     const COHERE_API_ENDPOINT = "https://api.cohere.ai/v1/chat";
     
     const GEMINI_API_KEY = "AIzaSyBmzGutz28iMiRQSB8bZ78_HrlQpEb1qQs"; 
-    // MERGED: Using powerful multimodal model
     const GEMINI_MODEL = "gemini-1.5-flash-latest";
     const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
     
+    // UPDATED FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCnS5bEqwCJHSwUkDbA3gWBRvL3o5OIrrw",
       authDomain: "chat-app-b07dc.firebaseapp.com",
+      databaseURL: "https://chat-app-b07dc-default-rtdb.firebaseio.com",
       projectId: "chat-app-b07dc",
-      storageBucket: "chat-app-b07dc.appspot.com",
+      storageBucket: "chat-app-b07dc.firebasestorage.app",
       messagingSenderId: "366248300706",
       appId: "1:366248300706:web:ca64e809e4f0ca52e747fb",
       measurementId: "G-4JZ3MQ9J7M"
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const firebaseApp = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth(firebaseApp);
 
     // =================================================================================
     // DOM Element References
@@ -1513,7 +1539,7 @@
     const noHistoryMessage = document.getElementById('noHistoryMessage');
     const appTitle = document.getElementById('appTitle');
 
-    // MERGED: DOM elements for Hindi Chat and File Upload
+    // Hindi Chat elements
     const hindiChatButton = document.getElementById('hindiChatButton');
     const hindiChatContainer = document.getElementById('hindiChatContainer');
     const hindiChatMessages = document.getElementById('hindiChatMessages');
@@ -1551,8 +1577,8 @@
     let currentChat = [];
     let currentHindiChat = [];
     let activeChatType = 'english';
-    let selectedHindiFile = null; // MERGED: To store selected file for Hindi chat
-    
+    let selectedHindiFile = null;
+
     // IQ Game State
     const rounds = [
         { correct: "😀", options: ["😀", "😠", "😎", "😢"] },
@@ -1609,13 +1635,12 @@
         learnButton.addEventListener('click', () => startPresetChat("learn"));
         codeButton.addEventListener('click', () => startPresetChat("code"));
         
-        // MERGED: Hindi Chat & File Upload Listeners
+        // Hindi Chat & File Upload Listeners
         hindiChatButton.addEventListener('click', () => startHindiChat());
         hindiChatInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !isTyping) sendHindiMessage(); });
         hindiSendButton.addEventListener('click', () => { if (!isTyping) sendHindiMessage(); });
         hindiAttachmentButton.addEventListener('click', () => hindiFileInput.click());
         hindiFileInput.addEventListener('change', handleHindiFileSelect);
-
 
         // Navigation
         homeNav.addEventListener('click', () => navigateTo('home'));
@@ -1661,7 +1686,7 @@
         generalError.textContent = '';
     }
 
-    function handleAuthAction() {
+    async function handleAuthAction() {
         if (!validateInputs()) return;
         const email = emailInput.value;
         const password = passwordInput.value;
@@ -1669,17 +1694,22 @@
         authButton.disabled = true;
         authButton.textContent = 'Processing...';
         
-        const action = isSignupMode 
-            ? auth.createUserWithEmailAndPassword(email, password)
-            : auth.signInWithEmailAndPassword(email, password);
-
-        action.catch(error => {
+        try {
+            if (isSignupMode) {
+                // Create new user
+                await auth.createUserWithEmailAndPassword(email, password);
+            } else {
+                // Sign in existing user
+                await auth.signInWithEmailAndPassword(email, password);
+            }
+        } catch (error) {
+            console.error("Authentication error:", error);
             generalError.textContent = error.message;
             generalError.style.display = 'block';
-        }).finally(() => {
+        } finally {
             authButton.disabled = false;
             authButton.textContent = isSignupMode ? 'Sign Up' : 'Log In';
-        });
+        }
     }
 
     function toggleAuthMode() {
@@ -1890,13 +1920,13 @@
     }
     
     // =================================================================================
-    // MERGED: Hindi Chat Functions with Image Analysis
+    // Hindi Chat Functions
     // =================================================================================
     function startHindiChat() {
         navigateTo('hindiChat');
         hindiChatMessages.innerHTML = '';
         currentHindiChat = [];
-        clearHindiPreview(); // Clear any previous previews
+        clearHindiPreview();
         addHindiMessage("नमस्ते! मैं स्क्विड एआई हूँ। आप कोई तस्वीर भेज सकते हैं या मुझसे कुछ पूछ सकते हैं।", 'ai');
     }
 
@@ -1947,7 +1977,7 @@
 
     function clearHindiPreview() {
         selectedHindiFile = null;
-        hindiFileInput.value = ''; // Reset the file input
+        hindiFileInput.value = '';
         hindiImagePreviewContainer.innerHTML = '';
     }
 
