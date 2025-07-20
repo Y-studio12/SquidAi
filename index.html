@@ -5,20 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Squid AI - Enhanced Settings</title>
     
-    <!-- Google Auto Ads (ONLY ONCE IN HEAD) -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6188470185582355"
-     crossorigin="anonymous"></script>
-    <script>
-     (adsbygoogle = window.adsbygoogle || []).push({
-          google_ad_client: "ca-pub-6188470185582355",
-          enable_page_level_ads: true
-     });
-    </script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Updated Firebase SDK v9 -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-dark: #0c0c14;
@@ -33,6 +24,10 @@
             --glass-bg: rgba(22, 22, 40, 0.4);
             --glass-border: rgba(255, 255, 255, 0.1);
             --glow: 0 0 20px rgba(157, 77, 255, 0.3);
+            /* VIP & Streak Colors */
+            --vip-gold: #ffd700;
+            --vip-purple: #8a2be2;
+            --streak-fire: #ffae42;
         }
         
         body.light-mode {
@@ -253,7 +248,8 @@
         .error-message {
             color: #ff6b6b;
             font-size: 14px;
-            margin-top: 5px;
+            margin-top: -15px;
+            margin-bottom: 5px;
             text-align: left;
             padding-left: 20px;
             display: none;
@@ -318,6 +314,27 @@
             letter-spacing: 0.5px;
         }
 
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #streakCounter {
+            background-color: var(--input-bg);
+            color: var(--streak-fire);
+            padding: 8px 12px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            display: none; /* Hidden by default */
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--glass-border);
+            text-shadow: 0 0 5px var(--streak-fire);
+            transition: all 0.3s ease;
+        }
+
         .header-icon {
             width: 44px;
             height: 44px;
@@ -340,15 +357,13 @@
             box-shadow: 0 0 15px rgba(157, 77, 255, 0.2);
         }
         
-        /* Content Wrapper for scrolling fix */
         .content-wrapper {
             flex: 1;
             position: relative;
             overflow: hidden;
         }
 
-        /* Main Content & Containers */
-        .main-content, .chat-container, .settings-container, .game-container {
+        .main-content, .chat-container, .settings-container, .game-container, .info-container, .leaderboard-container {
             position: absolute;
             top: 0;
             left: 0;
@@ -446,11 +461,19 @@
             z-index: 1;
         }
 
-        /* Chat Container */
         .chat-container {
             display: none;
             flex-direction: column;
             padding: 0;
+        }
+
+        .limit-counter {
+            padding: 5px 25px 10px;
+            text-align: right;
+            font-size: 12px;
+            color: #aaa;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
         }
 
         .chat-messages {
@@ -461,6 +484,13 @@
             flex-direction: column;
             gap: 20px;
         }
+        .chat-container .chat-messages {
+            padding-top: 10px;
+        }
+        #chatContainer .chat-messages {
+             padding-top: 25px;
+        }
+
 
         .message {
             max-width: 85%;
@@ -524,7 +554,6 @@
             font-weight: 300;
         }
         
-        /* MERGED: Style for images in messages */
         .message-image {
             max-width: 100%;
             border-radius: 15px;
@@ -565,7 +594,6 @@
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-        /* Chat Input */
         .chat-input-container {
             padding: 15px 20px; 
             display: flex; 
@@ -595,6 +623,11 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(157, 77, 255, 0.2);
         }
+        .chat-input:disabled {
+            background: rgba(40, 40, 56, 0.2);
+            cursor: not-allowed;
+        }
+
 
         .send-button {
             width: 50px; 
@@ -617,8 +650,13 @@
             transform: scale(1.08) rotate(10deg);
             box-shadow: 0 7px 20px rgba(157, 77, 255, 0.4);
         }
+        .send-button:disabled {
+            background: var(--secondary);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
         
-        /* MERGED: Attachment button styles */
         .attachment-button {
             width: 50px;
             height: 50px;
@@ -639,8 +677,14 @@
             background: rgba(157, 77, 255, 0.2);
             transform: scale(1.05);
         }
+        .attachment-button:disabled {
+            background: var(--secondary);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: #888;
+        }
 
-        /* MERGED: Image Preview styles */
         #hindiImagePreviewContainer {
             padding: 0 20px 10px 20px;
             background: var(--glass-bg);
@@ -684,7 +728,32 @@
             transform: scale(1.1);
         }
 
-        /* Bottom Navigation */
+        #adviceSuggestionsContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0 20px 15px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+        }
+        .suggestion-chip {
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        .suggestion-chip:hover {
+            background: rgba(157, 77, 255, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+
         .bottom-nav {
             display: flex; 
             justify-content: space-around; 
@@ -701,9 +770,11 @@
             color: #aaa;
             cursor: pointer; 
             transition: all 0.3s ease; 
-            padding: 8px 25px; 
+            padding: 8px 15px;
             border-radius: 50px;
             position: relative;
+            flex: 1;
+            text-align: center;
         }
         
         .nav-item::after {
@@ -741,15 +812,14 @@
         }
         
         .nav-label { 
-            font-size: 13px; 
+            font-size: 12px;
             font-weight: 500;
         }
         
-        /* Settings Container */
         .settings-container {
             display: none;
             flex-direction: column;
-            gap: 25px;
+            gap: 20px;
             padding: 25px;
         }
         
@@ -785,6 +855,29 @@
             background: rgba(157, 77, 255, 0.1);
         }
         
+        .settings-item.vip {
+            border-color: transparent;
+            background: linear-gradient(135deg, var(--vip-purple), var(--vip-gold), var(--vip-purple));
+            background-size: 200% 200%;
+            animation: vipBgAnimate 4s ease infinite;
+        }
+        .settings-item.vip.active-vip {
+            background: linear-gradient(135deg, var(--vip-gold), #ffec8a, var(--vip-gold));
+            animation: vipBgAnimate 6s ease infinite;
+        }
+        .settings-item.vip:hover {
+            transform: translateX(5px) scale(1.02);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .settings-item.vip label, .settings-item.vip i {
+            color: white !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+        .settings-item.vip.active-vip label, .settings-item.vip.active-vip i {
+            color: #4B0082 !important;
+        }
+
+
         .settings-item label { 
             font-size: 17px; 
             font-weight: 500; 
@@ -819,7 +912,6 @@
             box-shadow: 0 8px 20px rgba(255, 77, 77, 0.3);
         }
 
-        /* Theme Toggle Switch */
         .theme-switch { 
             position: relative; 
             display: inline-block; 
@@ -868,7 +960,6 @@
             background: white;
         }
 
-        /* Chat History */
         #chatHistoryList {
             list-style: none;
             padding: 0;
@@ -943,7 +1034,6 @@
             font-style: italic;
         }
         
-        /* IQ Game Container */
         .game-container {
             display: none;
             flex-direction: column;
@@ -1028,7 +1118,6 @@
             -webkit-text-fill-color: transparent;
         }
         
-        /* New Settings Pages */
         .info-container {
             display: none;
             flex-direction: column;
@@ -1109,96 +1198,230 @@
             margin: 15px 0;
         }
         
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .profile-header .value {
+            font-size: 16px;
+            flex-grow: 1;
+        }
+        .vip-badge {
+            color: var(--vip-gold);
+            font-size: 20px;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+        }
+
+        .profile-field {
+            margin-bottom: 20px;
+        }
+        .profile-field label {
+            display: block;
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+        .profile-field .value {
+            font-size: 16px;
+            background: var(--input-bg);
+            padding: 15px;
+            border-radius: 15px;
+        }
+        .profile-field input {
+             width: 100%;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            background: var(--input-bg);
+            color: var(--text-light);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .profile-field input:focus {
+            border-color: var(--primary);
+        }
+        #profileStatus {
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 20px;
+            text-align: center;
+        }
+        .success { color: var(--accent); }
+        .fail { color: #ff6b6b; }
+        
+        .leaderboard-container {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #leaderboardList {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            transition: transform 0.2s ease;
+        }
+        .leaderboard-item.is-vip {
+             border-left: 4px solid var(--vip-gold);
+        }
+        .leaderboard-item:hover {
+            transform: scale(1.02);
+            border-color: var(--primary);
+        }
+        .leaderboard-item:nth-child(1) { border-color: var(--vip-gold); box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+        .leaderboard-item:nth-child(2) { border-color: #c0c0c0; }
+        .leaderboard-item:nth-child(3) { border-color: #cd7f32; }
+        .leaderboard-rank {
+            font-size: 20px;
+            font-weight: 700;
+            width: 40px;
+            text-align: center;
+            margin-right: 15px;
+            color: var(--primary);
+        }
+        .leaderboard-item:nth-child(1) .leaderboard-rank { color: var(--vip-gold); }
+        .leaderboard-item:nth-child(2) .leaderboard-rank { color: #c0c0c0; }
+        .leaderboard-item:nth-child(3) .leaderboard-rank { color: #cd7f32; }
+        .leaderboard-name {
+            flex-grow: 1;
+            font-size: 17px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .leaderboard-score {
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .leaderboard-score i {
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .vip-feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+        .vip-feature-list li {
+            display: flex;
+            align-items: center;
+            font-size: 17px;
+            margin-bottom: 15px;
+        }
+        .vip-feature-list i {
+            color: var(--vip-gold);
+            font-size: 20px;
+            margin-right: 15px;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+        .unlock-vip-button {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            color: #0c0c14;
+            background: linear-gradient(45deg, var(--vip-purple), var(--vip-gold), var(--vip-purple));
+            background-size: 200% 200%;
+            animation: vipBgAnimate 4s ease infinite;
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+        }
+        .unlock-vip-button:hover {
+            transform: scale(1.03);
+            box-shadow: 0 7px 20px rgba(255, 215, 0, 0.5);
+        }
+        #streakRedeemContainer {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--input-bg);
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 1px solid var(--glass-border);
+        }
+        #streakProgressText {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        #streakProgressText .fire-icon { color: var(--streak-fire); }
+        .redeem-streak-button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--streak-fire), #ff7e5f);
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 174, 66, 0.3);
+        }
+        .redeem-streak-button:disabled {
+            background: var(--secondary);
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .redeem-streak-button:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 174, 66, 0.4);
+        }
+
         /* Animations */
-        @keyframes typingAnimation { 
-            0%, 60%, 100% { transform: translateY(0); } 
-            30% { transform: translateY(-6px); } 
+        @keyframes vipBgAnimate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(20px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeInLeft {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes fadeInRight {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        /* Floating animation for logo */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-        
-        .app-logo, .login-logo {
-            animation: float 4s ease-in-out infinite;
-        }
+        @keyframes typingAnimation { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { translateY(0px); } }
+        .app-logo, .login-logo { animation: float 4s ease-in-out infinite; }
 
         /* Responsive */
         @media (max-width: 500px) {
-            .app-container { 
-                max-width: 100%; 
-                max-height: 100%; 
-                border-radius: 0; 
-            }
-            
-            .login-container { 
-                width: 90%; 
-                padding: 30px;
-            }
-            
-            .app-header {
-                padding: 15px 20px;
-            }
-            
-            .action-button {
-                padding: 18px;
-            }
-            
-            .chat-messages {
-                padding: 15px;
-            }
-            
-            .emoji {
-                font-size: 2rem;
-                padding: 12px;
-            }
-            
-            /* Hindi chat input adjustments */
-            .chat-input-container {
-                padding: 10px 15px;
-                gap: 8px;
-            }
-            
-            .chat-input {
-                padding: 12px 15px;
-                font-size: 14px;
-            }
-            
-            .attachment-button, .send-button {
-                width: 45px;
-                height: 45px;
-                font-size: 16px;
-            }
+            .app-container { max-width: 100%; max-height: 100%; border-radius: 0; }
+            .login-container { width: 90%; padding: 30px; }
+            .app-header { padding: 15px 20px; }
+            .action-button { padding: 18px; }
+            .chat-messages { padding: 15px; }
+            .emoji { font-size: 2rem; padding: 12px; }
+            .chat-input-container { padding: 10px 15px; gap: 8px; }
+            .chat-input { padding: 12px 15px; font-size: 14px; }
+            .attachment-button, .send-button { width: 45px; height: 45px; font-size: 16px; }
+            .nav-item { padding: 8px 10px; }
         }
         
         @media (max-width: 380px) {
-            .chat-input {
-                font-size: 13px;
-                padding: 10px 15px;
-            }
+            .chat-input { font-size: 13px; padding: 10px 15px; }
+            .nav-label { font-size: 11px; }
+            #streakCounter { font-size: 12px; padding: 6px 10px; gap: 4px; }
         }
 
     </style>
@@ -1237,9 +1460,15 @@
                 <div class="app-logo">🦑</div>
                 <div class="app-title" id="appTitle">Squid AI</div>
             </div>
-            <button class="header-icon" id="settingsButton" title="Settings">
-                <i class="fas fa-cog"></i>
-            </button>
+            <div class="header-controls">
+                <div id="streakCounter">
+                    <span>🔥</span>
+                    <span id="streakCount">0</span>
+                </div>
+                <button class="header-icon" id="settingsButton" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
         </div>
 
         <div class="content-wrapper">
@@ -1247,6 +1476,7 @@
             <div class="main-content" id="mainContent">
                 <div class="welcome-text">Where should we start?</div>
                 <div class="action-buttons">
+                    <button class="action-button" id="adviceChatButton"><span class="icon"><i class="fas fa-hand-holding-heart"></i></span> Get Advice</button>
                     <button class="action-button" id="chatButton"><span class="icon">💬</span> Start a new chat</button>
                     <button class="action-button" id="hindiChatButton"><span class="icon">🇮🇳</span> Chat in Hindi</button>
                     <button class="action-button" id="iqButton"><span class="icon">🧠</span> IQ Calculator</button>
@@ -1255,7 +1485,7 @@
                 </div>
             </div>
 
-            <!-- Chat Container (English) -->
+            <!-- Chat Container (English - Uses COHERE) -->
             <div class="chat-container" id="chatContainer">
                 <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-input-container">
@@ -1264,17 +1494,29 @@
                 </div>
             </div>
 
+            <!-- Advice Chat Container (Uses GEMINI) -->
+            <div class="chat-container" id="adviceChatContainer">
+                <div class="limit-counter" id="adviceLimitCounter"></div>
+                <div class="chat-messages" id="adviceChatMessages"></div>
+                <div id="adviceSuggestionsContainer">
+                    <button class="suggestion-chip">I'm feeling stressed</button>
+                    <button class="suggestion-chip">I need relationship advice</button>
+                    <button class="suggestion-chip">How to deal with failure?</button>
+                    <button class="suggestion-chip">I feel lonely</button>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="adviceChatInput" placeholder="Tell me what's on your mind...">
+                    <button class="send-button" id="adviceSendButton"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+
             <!-- Hindi Chat Container -->
             <div class="chat-container" id="hindiChatContainer">
+                <div class="limit-counter" id="hindiLimitCounter"></div>
                 <div class="chat-messages" id="hindiChatMessages"></div>
-                <!-- Image Preview Container -->
                 <div id="hindiImagePreviewContainer"></div>
                 <div class="chat-input-container">
-                    <!-- Attachment Button -->
-                    <button class="attachment-button" id="hindiAttachmentButton" title="Attach image">
-                        <i class="fas fa-paperclip"></i>
-                    </button>
-                    <!-- Hidden File Input -->
+                    <button class="attachment-button" id="hindiAttachmentButton" title="Attach image"><i class="fas fa-paperclip"></i></button>
                     <input type="file" id="hindiFileInput" accept="image/jpeg, image/png, image/webp" style="display: none;">
                     <input type="text" class="chat-input" id="hindiChatInput" placeholder="छवि के साथ कुछ पूछें...">
                     <button class="send-button" id="hindiSendButton"><i class="fas fa-paper-plane"></i></button>
@@ -1285,21 +1527,26 @@
             <div class="settings-container" id="settingsContainer">
                 <h2 class="settings-header"><i class="fas fa-cog"></i> Settings</h2>
                 
+                <div class="settings-item vip" id="vipMembershipBtn">
+                    <label><i class="fas fa-crown"></i> <span id="vipBtnText">VIP Membership</span></label>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="settings-item" id="profileBtn">
+                    <label><i class="fas fa-user-circle"></i> Your Profile</label>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
                 <div class="settings-item" id="howToUseBtn">
                     <label><i class="fas fa-book"></i> How to Use</label>
                     <i class="fas fa-chevron-right"></i>
                 </div>
-                
                 <div class="settings-item" id="privacyPolicyBtn">
                     <label><i class="fas fa-shield-alt"></i> Privacy Policy</label>
                     <i class="fas fa-chevron-right"></i>
                 </div>
-                
                 <div class="settings-item" id="securityBtn">
                     <label><i class="fas fa-lock"></i> Security</label>
                     <i class="fas fa-chevron-right"></i>
                 </div>
-                
                 <div class="settings-item">
                     <label for="themeToggle"><i class="fas fa-sun"></i> Light Mode</label>
                     <label class="theme-switch">
@@ -1307,18 +1554,87 @@
                         <span class="slider"></span>
                     </label>
                 </div>
-                
                 <div>
                     <h3 class="settings-header" style="margin-top: 20px; font-size: 20px;"><i class="fas fa-history"></i> Chat History</h3>
                      <ul id="chatHistoryList"></ul>
                      <p id="noHistoryMessage" style="display: none;">No saved chats yet.</p>
                 </div>
-                
                 <div class="settings-item" style="background: none; padding: 0; margin-top: auto;">
                     <button class="logout-button" id="logoutButton">Log Out</button>
                 </div>
             </div>
+
+            <!-- VIP Membership Container -->
+            <div class="info-container" id="vipMembershipContainer">
+                <div class="info-header">
+                    <i class="fas fa-crown" style="color: var(--vip-gold);"></i>
+                    <h2>Squid VIP Membership</h2>
+                </div>
+                <div class="info-content">
+                    <h3>Unlock Premium Features!</h3>
+                    <p>Upgrade to VIP for the ultimate Squid AI experience.</p>
+                    <ul class="vip-feature-list">
+                        <li><i class="fas fa-trophy"></i>Show your name on global leaderboard</li>
+                        <li><i class="fas fa-bolt"></i>2x limit increases on your language</li>
+                        <li><i class="fas fa-id-badge"></i>Get VIP badge on your profile</li>
+                        <li><i class="fas fa-ad"></i>Ad-free experience</li>
+                        <li><i class="fas fa-rocket"></i>Unlock multiple VIP features</li>
+                    </ul>
+                    <button class="unlock-vip-button" id="unlockVipPageButton">Unlock Now (Work in Progress)</button>
+                    <div id="streakRedeemContainer">
+                        <p id="streakProgressText"><span class="fire-icon">🔥</span> Your Streak: <span id="redeemStreakCount">0</span> / 30</p>
+                        <button class="redeem-streak-button" id="redeemStreakButton" disabled>Redeem for 1 Month FREE VIP</button>
+                    </div>
+                </div>
+                <button class="back-button" id="backFromVip">
+                    <i class="fas fa-arrow-left"></i> Back to Settings
+                </button>
+            </div>
             
+            <!-- Leaderboard Container -->
+            <div class="leaderboard-container" id="leaderboardContainer">
+                <div class="info-header">
+                    <i class="fas fa-trophy" style="color: var(--vip-gold);"></i>
+                    <h2>Global Leaderboard</h2>
+                </div>
+                <p style="text-align: center; color: #ccc; margin-top: -10px; margin-bottom: 10px;">Top monthly members. Only VIP members are shown.</p>
+                <ul id="leaderboardList">
+                    <!-- Leaderboard items will be injected by JS -->
+                </ul>
+            </div>
+            
+            <!-- Profile Container -->
+            <div class="info-container" id="profileContainer">
+                <div class="info-header">
+                    <i class="fas fa-user-circle"></i>
+                    <h2>Your Profile</h2>
+                </div>
+                <div class="info-content">
+                    <div class="profile-field">
+                        <label>Email Address</label>
+                        <div class="profile-header">
+                           <div class="value" id="profileEmail"></div>
+                           <i id="profileVipBadge" class="fas fa-crown vip-badge" style="display: none;" title="VIP Member"></i>
+                        </div>
+                    </div>
+                    <div class="profile-field">
+                        <label for="profileNameInput">Your Name (for Leaderboard)</label>
+                        <input type="text" id="profileNameInput" placeholder="Enter your name">
+                    </div>
+                    <button class="login-button" id="saveNameButton" style="width:100%;">Save Name</button>
+                    <div id="profileStatus"></div>
+                    
+                    <h3 style="margin-top: 30px;">Security</h3>
+                    <button class="back-button" id="resetPasswordButton" style="width:100%; justify-content:center;">
+                        <i class="fas fa-key"></i> Send Password Reset Link
+                    </button>
+                </div>
+                 <button class="back-button" id="backFromProfile">
+                    <i class="fas fa-arrow-left"></i> Back to Settings
+                </button>
+            </div>
+
+
             <!-- How to Use Container -->
             <div class="info-container" id="howToUseContainer">
                 <div class="info-header">
@@ -1329,19 +1645,22 @@
                 <div class="info-content">
                     <p>Welcome to Squid AI! Here's how to make the most of your experience:</p>
                     
+                    <h3>Daily Streak 🔥</h3>
+                    <p>Open the app every day to increase your daily streak. Reach a 30-day streak to redeem a <strong>FREE month of VIP membership!</strong></p>
+
                     <h3>Getting Started</h3>
                     <ul>
-                        <li><strong>New Chat</strong>: Tap the "New Chat" button to start a conversation</li>
-                        <li><strong>Hindi Chat</strong>: Select "Chat in Hindi" for conversations in Hindi</li>
-                        <li><strong>IQ Test</strong>: Try our fun IQ calculator game under "IQ Calculator"</li>
+                        <li><strong>Get Advice</strong>: Tap this for a friendly, supportive chat in Hinglish.</li>
+                        <li><strong>New Chat</strong>: Tap the "New Chat" button to start a standard conversation.</li>
+                        <li><strong>Hindi Chat</strong>: Select "Chat in Hindi" for conversations in Hindi.</li>
+                        <li><strong>IQ Test</strong>: Try our fun IQ calculator game under "IQ Calculator".</li>
                     </ul>
                     
                     <h3>Chat Features</h3>
                     <ul>
-                        <li>Type your message and press Enter or tap the send button</li>
-                        <li>View your chat history in the Settings menu</li>
-                        <li>Switch between English and Hindi chats anytime</li>
-                        <li>In Hindi chat, tap the paperclip icon <i class="fas fa-paperclip"></i> to analyze photos</li>
+                        <li>Type your message and press Enter or tap the send button.</li>
+                        <li>View your chat history in the Settings menu.</li>
+                        <li>In Hindi chat, tap the paperclip icon <i class="fas fa-paperclip"></i> to analyze photos.</li>
                     </ul>
                     
                     <div class="highlight-box">
@@ -1351,9 +1670,10 @@
                     <h3>Daily Limits</h3>
                     <p>To ensure fair usage for everyone:</p>
                     <ul>
-                        <li>Hindi chats are limited to 100 messages per day</li>
-                        <li>English chats have no daily limits</li>
-                        <li>IQ game can be played unlimited times</li>
+                        <li>"Get Advice" and "Chat in Hindi" are limited to 50 messages per day.</li>
+                        <li><strong>VIP Members get 100 messages per day!</strong></li>
+                        <li>Other chats have no daily limits.</li>
+                        <li>IQ game can be played unlimited times.</li>
                     </ul>
                     
                     <button class="back-button" id="backFromHowToUse">
@@ -1375,9 +1695,10 @@
                     <h3>Data Collection</h3>
                     <p>We collect the following information:</p>
                     <ul>
-                        <li>Email address for authentication purposes</li>
+                        <li>Email address and display name for authentication purposes</li>
                         <li>Chat history stored locally on your device</li>
-                        <li>Usage statistics (without personal identifiers)</li>
+                        <li>Daily message usage counts for limited chats, stored locally</li>
+                        <li>Your daily streak count and VIP status, stored in Firebase to sync across devices.</li>
                     </ul>
                     
                     <h3>Data Usage</h3>
@@ -1386,6 +1707,7 @@
                         <li>Provide and improve our services</li>
                         <li>Personalize your experience</li>
                         <li>Maintain security and prevent abuse</li>
+                        <li>Manage VIP features like the leaderboard and daily streak.</li>
                     </ul>
                     
                     <div class="highlight-box">
@@ -1396,8 +1718,8 @@
                     <p>All your data is stored securely:</p>
                     <ul>
                         <li>Authentication handled by Firebase</li>
-                        <li>Chat history stored in your browser's local storage</li>
-                        <li>No personal data stored on our servers</li>
+                        <li>User-specific data (streak, VIP status) stored in Firebase Realtime Database</li>
+                        <li>Chat history and usage limits stored in your browser's local storage</li>
                         <li>Uploaded images are processed temporarily and never stored</li>
                     </ul>
                     
@@ -1412,7 +1734,7 @@
             
             <!-- Security Container -->
             <div class="info-container" id="securityContainer">
-                <div class="info-header">
+                 <div class="info-header">
                     <i class="fas fa-lock"></i>
                     <h2>Security Information</h2>
                 </div>
@@ -1485,9 +1807,13 @@
                 <div class="nav-icon"><i class="fas fa-plus-circle"></i></div>
                 <div class="nav-label">New Chat</div>
             </div>
+            <div class="nav-item" id="leaderboardNav">
+                <div class="nav-icon"><i class="fas fa-trophy"></i></div>
+                <div class="nav-label">Leaderboard</div>
+            </div>
         </div>
     </div>
-
+    
 <script>
     // =================================================================================
     // IMPORTANT: Configuration
@@ -1495,11 +1821,14 @@
     const COHERE_API_KEY = "bpSstiCTmvYvzPE396HFKbZABWTA8JfBpkHWMujA";
     const COHERE_API_ENDPOINT = "https://api.cohere.ai/v1/chat";
     
-    const GEMINI_API_KEY = "AIzaSyBmzGutz28iMiRQSB8bZ78_HrlQpEb1qQs"; 
+    const GEMINI_API_KEY = "AIzaSyAPACd3ci-fr96Iswt2HqoxStZm0mMCmtc"; 
     const GEMINI_MODEL = "gemini-1.5-flash-latest";
     const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
     
-    // UPDATED FIREBASE CONFIG
+    const DAILY_MESSAGE_LIMIT_NORMAL = 50; 
+    const DAILY_MESSAGE_LIMIT_VIP = 100;
+    const STREAK_REDEEM_GOAL = 30;
+
     const firebaseConfig = {
       apiKey: "AIzaSyCnS5bEqwCJHSwUkDbA3gWBRvL3o5OIrrw",
       authDomain: "chat-app-b07dc.firebaseapp.com",
@@ -1511,9 +1840,9 @@
       measurementId: "G-4JZ3MQ9J7M"
     };
 
-    // Initialize Firebase
     const firebaseApp = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(firebaseApp);
+    const db = firebase.database(firebaseApp);
 
     // =================================================================================
     // DOM Element References
@@ -1532,16 +1861,8 @@
     const settingsButton = document.getElementById('settingsButton');
     const logoutButton = document.getElementById('logoutButton');
     const mainContent = document.getElementById('mainContent');
-    const chatContainer = document.getElementById('chatContainer');
     const settingsContainer = document.getElementById('settingsContainer');
     const gameContainer = document.getElementById('gameContainer');
-    const chatMessages = document.getElementById('chatMessages');
-    const chatInput = document.getElementById('chatInput');
-    const sendButton = document.getElementById('sendButton');
-    const chatButton = document.getElementById('chatButton');
-    const iqButton = document.getElementById('iqButton');
-    const learnButton = document.getElementById('learnButton');
-    const codeButton = document.getElementById('codeButton');
     const homeNav = document.getElementById('homeNav');
     const newChatNav = document.getElementById('newChatNav');
     const themeToggle = document.getElementById('themeToggle');
@@ -1549,7 +1870,21 @@
     const noHistoryMessage = document.getElementById('noHistoryMessage');
     const appTitle = document.getElementById('appTitle');
 
-    // Hindi Chat elements
+    // Chat elements
+    const chatContainer = document.getElementById('chatContainer');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatButton = document.getElementById('chatButton');
+    const learnButton = document.getElementById('learnButton');
+    const codeButton = document.getElementById('codeButton');
+    const adviceChatButton = document.getElementById('adviceChatButton');
+    const adviceChatContainer = document.getElementById('adviceChatContainer');
+    const adviceChatMessages = document.getElementById('adviceChatMessages');
+    const adviceSuggestionsContainer = document.getElementById('adviceSuggestionsContainer');
+    const adviceChatInput = document.getElementById('adviceChatInput');
+    const adviceSendButton = document.getElementById('adviceSendButton');
+    const adviceLimitCounter = document.getElementById('adviceLimitCounter');
     const hindiChatButton = document.getElementById('hindiChatButton');
     const hindiChatContainer = document.getElementById('hindiChatContainer');
     const hindiChatMessages = document.getElementById('hindiChatMessages');
@@ -1558,8 +1893,10 @@
     const hindiAttachmentButton = document.getElementById('hindiAttachmentButton');
     const hindiFileInput = document.getElementById('hindiFileInput');
     const hindiImagePreviewContainer = document.getElementById('hindiImagePreviewContainer');
-    
+    const hindiLimitCounter = document.getElementById('hindiLimitCounter');
+
     // IQ Game
+    const iqButton = document.getElementById('iqButton');
     const roundTitle = document.getElementById('roundTitle');
     const timerDisplay = document.getElementById('timerDisplay');
     const emojiContainer = document.getElementById('emojiContainer');
@@ -1567,7 +1904,7 @@
     const restartGameButton = document.getElementById('restartGameButton');
     const iqResult = document.getElementById('iqResult');
     
-    // New Settings Pages
+    // Info & Settings Pages
     const howToUseBtn = document.getElementById('howToUseBtn');
     const privacyPolicyBtn = document.getElementById('privacyPolicyBtn');
     const securityBtn = document.getElementById('securityBtn');
@@ -1578,6 +1915,34 @@
     const backFromPrivacyPolicy = document.getElementById('backFromPrivacyPolicy');
     const backFromSecurity = document.getElementById('backFromSecurity');
     
+    // Profile Page elements
+    const profileBtn = document.getElementById('profileBtn');
+    const profileContainer = document.getElementById('profileContainer');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileNameInput = document.getElementById('profileNameInput');
+    const saveNameButton = document.getElementById('saveNameButton');
+    const resetPasswordButton = document.getElementById('resetPasswordButton');
+    const profileStatus = document.getElementById('profileStatus');
+    const backFromProfile = document.getElementById('backFromProfile');
+    const profileVipBadge = document.getElementById('profileVipBadge');
+    
+    // Leaderboard and VIP elements
+    const leaderboardNav = document.getElementById('leaderboardNav');
+    const leaderboardContainer = document.getElementById('leaderboardContainer');
+    const leaderboardList = document.getElementById('leaderboardList');
+    const vipMembershipBtn = document.getElementById('vipMembershipBtn');
+    const vipBtnText = document.getElementById('vipBtnText');
+    const vipMembershipContainer = document.getElementById('vipMembershipContainer');
+    const backFromVip = document.getElementById('backFromVip');
+    const unlockVipPageButton = document.getElementById('unlockVipPageButton');
+    
+    // Streak & Redemption elements
+    const streakCounter = document.getElementById('streakCounter');
+    const streakCount = document.getElementById('streakCount');
+    const streakRedeemContainer = document.getElementById('streakRedeemContainer');
+    const redeemStreakCount = document.getElementById('redeemStreakCount');
+    const redeemStreakButton = document.getElementById('redeemStreakButton');
+
     // =================================================================================
     // App State
     // =================================================================================
@@ -1585,27 +1950,23 @@
     let isTyping = false;
     let isSignupMode = false;
     let currentChat = [];
+    let currentAdviceChat = []; 
     let currentHindiChat = [];
-    let activeChatType = 'english';
+    let activeChatType = 'english'; 
     let selectedHindiFile = null;
+    let isVipUser = false;
+    let userStreak = 0;
 
     // IQ Game State
     const rounds = [
-        { correct: "😀", options: ["😀", "😠", "😎", "😢"] },
-        { correct: "🐶", options: ["🐱", "🐶", "🐭", "🐰"] },
-        { correct: "🍎", options: ["🍎", "🍌", "🍇", "🍉"] },
-        { correct: "🚗", options: ["🚌", "🚗", "🚕", "🚓"] },
-        { correct: "🌞", options: ["🌞", "🌜", "⭐", "☁️"] },
-        { correct: "❤️", options: ["💙", "💛", "💜", "❤️"] },
-        { correct: "🙁", options: ["😕", "🙁", "😒", "😏"] },
-        { correct: "😟", options: ["😟", "😑", "😐", "😮"] },
-        { correct: "😕", options: ["😏", "😕", "😒", "🙁"] },
-        { correct: "😒", options: ["😒", "😐", "😏", "🙃"] }
+        { correct: "😀", options: ["😀", "😠", "😎", "😢"] }, { correct: "🐶", options: ["🐱", "🐶", "🐭", "🐰"] },
+        { correct: "🍎", options: ["🍎", "🍌", "🍇", "🍉"] }, { correct: "🚗", options: ["🚌", "🚗", "🚕", "🚓"] },
+        { correct: "🌞", options: ["🌞", "🌜", "⭐", "☁️"] }, { correct: "❤️", options: ["💙", "💛", "💜", "❤️"] },
+        { correct: "🙁", options: ["😕", "🙁", "😒", "😏"] }, { correct: "😟", options: ["😟", "😑", "😐", "😮"] },
+        { correct: "😕", options: ["😏", "😕", "😒", "🙁"] }, { correct: "😒", options: ["😒", "😐", "😏", "🙃"] }
     ];
-
     const easyTime = 5;
     const hardTime = 3;
-
     let currentRound = 0;
     let gameScore = 0;
     let gameTimer;
@@ -1619,57 +1980,69 @@
         loaderContainer.style.display = 'none';
         if (user) {
             currentUser = user;
-            showApp();
+            initializeAppState();
         } else {
             currentUser = null;
             showLogin();
         }
     });
+
+    // OPTIMIZATION: Show the app immediately, then fetch user data in the background.
+    function initializeAppState() {
+        showApp();
+        fetchAndProcessUserData();
+    }
     
     function setupEventListeners() {
         authButton.addEventListener('click', handleAuthAction);
-        toggleAuthModeLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleAuthMode();
-        });
+        toggleAuthModeLink.addEventListener('click', (e) => { e.preventDefault(); toggleAuthMode(); });
         logoutButton.addEventListener('click', handleLogout);
         settingsButton.addEventListener('click', () => navigateTo('settings'));
         
-        // English Chat Listeners
         chatInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !isTyping) sendMessage(); });
         sendButton.addEventListener('click', () => { if (!isTyping) sendMessage(); });
-
-        // Preset Listeners
         chatButton.addEventListener('click', () => startChat());
-        iqButton.addEventListener('click', () => navigateTo('game'));
         learnButton.addEventListener('click', () => startPresetChat("learn"));
         codeButton.addEventListener('click', () => startPresetChat("code"));
-        
-        // Hindi Chat & File Upload Listeners
+
+        adviceChatButton.addEventListener('click', () => startAdviceChat());
+        adviceChatInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !isTyping) sendAdviceMessage(); });
+        adviceSendButton.addEventListener('click', () => { if (!isTyping) sendAdviceMessage(); });
+        adviceSuggestionsContainer.addEventListener('click', handleSuggestionClick);
+
         hindiChatButton.addEventListener('click', () => startHindiChat());
         hindiChatInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !isTyping) sendHindiMessage(); });
         hindiSendButton.addEventListener('click', () => { if (!isTyping) sendHindiMessage(); });
         hindiAttachmentButton.addEventListener('click', () => hindiFileInput.click());
         hindiFileInput.addEventListener('change', handleHindiFileSelect);
 
-        // Navigation
         homeNav.addEventListener('click', () => navigateTo('home'));
         newChatNav.addEventListener('click', () => startChat());
-        
-        // Theme
+        iqButton.addEventListener('click', () => navigateTo('game'));
         themeToggle.addEventListener('change', toggleTheme);
         
-        // IQ Game Listeners
         startGameButton.addEventListener('click', startGame);
         restartGameButton.addEventListener('click', startGame);
         
-        // New Settings Page Listeners
         howToUseBtn.addEventListener('click', () => showInfoPage('howToUse'));
         privacyPolicyBtn.addEventListener('click', () => showInfoPage('privacyPolicy'));
         securityBtn.addEventListener('click', () => showInfoPage('security'));
         backFromHowToUse.addEventListener('click', () => navigateTo('settings'));
         backFromPrivacyPolicy.addEventListener('click', () => navigateTo('settings'));
         backFromSecurity.addEventListener('click', () => navigateTo('settings'));
+        
+        profileBtn.addEventListener('click', () => showInfoPage('profile'));
+        backFromProfile.addEventListener('click', () => navigateTo('settings'));
+        saveNameButton.addEventListener('click', handleSaveName);
+        resetPasswordButton.addEventListener('click', handleResetPassword);
+
+        leaderboardNav.addEventListener('click', () => navigateTo('leaderboard'));
+        vipMembershipBtn.addEventListener('click', () => showInfoPage('vipMembership'));
+        backFromVip.addEventListener('click', () => navigateTo('settings'));
+        unlockVipPageButton.addEventListener('click', () => {
+            alert('VIP purchasing system is under development. Coming soon! Try redeeming with your daily streak.');
+        });
+        redeemStreakButton.addEventListener('click', redeemVipWithStreak);
     }
     
     function showLogin() {
@@ -1679,6 +2052,10 @@
         emailInput.value = '';
         passwordInput.value = '';
         clearErrors();
+        isVipUser = false;
+        userStreak = 0;
+        updateStreakUI();
+        updateVipRelatedUI();
     }
 
     function showApp() {
@@ -1700,18 +2077,11 @@
         if (!validateInputs()) return;
         const email = emailInput.value;
         const password = passwordInput.value;
-
         authButton.disabled = true;
         authButton.textContent = 'Processing...';
-        
         try {
-            if (isSignupMode) {
-                // Create new user
-                await auth.createUserWithEmailAndPassword(email, password);
-            } else {
-                // Sign in existing user
-                await auth.signInWithEmailAndPassword(email, password);
-            }
+            if (isSignupMode) { await auth.createUserWithEmailAndPassword(email, password); } 
+            else { await auth.signInWithEmailAndPassword(email, password); }
         } catch (error) {
             console.error("Authentication error:", error);
             generalError.textContent = error.message;
@@ -1756,48 +2126,179 @@
     }
 
     // =================================================================================
-    // Navigation Logic
+    // NEW OPTIMIZED: User Data Fetching and Processing
     // =================================================================================
+    async function fetchAndProcessUserData() {
+        if (!currentUser) return;
+        try {
+            const userRef = db.ref(`users/${currentUser.uid}`);
+            const snapshot = await userRef.once('value');
+            const userData = snapshot.val() || {};
 
-    function navigateTo(section) {
-        // Save chat when navigating away
-        if (chatContainer.style.display === 'flex' || hindiChatContainer.style.display === 'flex') {
-            if (section !== 'chat' && section !== 'hindiChat') {
-                saveActiveChat();
+            // Process VIP and Streak from the single data fetch
+            processVipStatus(userData);
+            await processUserStreak(userData); // This might write data, so it remains async
+
+            // Update all UI elements that depend on this data
+            updateVipRelatedUI();
+            updateStreakUI();
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            // Even if it fails, the app is already running.
+        }
+    }
+    
+    function processVipStatus(userData) {
+        if (userData && userData.isVip && userData.vipExpiryDate) {
+            const expiryDate = new Date(userData.vipExpiryDate);
+            if (expiryDate > new Date()) {
+                isVipUser = true;
+            } else {
+                isVipUser = false;
+                // If VIP expired, update it in Firebase. No need to await this.
+                db.ref(`users/${currentUser.uid}`).update({ isVip: false, vipExpiryDate: null });
             }
+        } else {
+            isVipUser = false;
+        }
+    }
+
+    async function processUserStreak(userData) {
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        const lastLoginStr = userData.lastLoginDate;
+        let currentStreak = userData.streak || 0;
+
+        if (lastLoginStr) {
+            if (lastLoginStr !== todayStr) {
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                currentStreak = (lastLoginStr === yesterdayStr) ? currentStreak + 1 : 1;
+                // Update Firebase in the background
+                await db.ref(`users/${currentUser.uid}`).update({ streak: currentStreak, lastLoginDate: todayStr });
+            }
+        } else {
+            // First time login with streak system
+            currentStreak = 1;
+            await db.ref(`users/${currentUser.uid}`).update({ streak: currentStreak, lastLoginDate: todayStr });
+        }
+        userStreak = currentStreak;
+    }
+    
+    // =================================================================================
+    // VIP and Daily Streak Logic
+    // =================================================================================
+    async function redeemVipWithStreak() {
+        if (!currentUser || userStreak < STREAK_REDEEM_GOAL) return;
+
+        redeemStreakButton.disabled = true;
+        redeemStreakButton.textContent = "Redeeming...";
+
+        try {
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30);
+
+            const updates = {
+                isVip: true,
+                vipExpiryDate: expiryDate.toISOString(),
+                streak: 0, 
+            };
+            
+            await db.ref(`users/${currentUser.uid}`).update(updates);
+            
+            if(currentUser.displayName) {
+                 await db.ref(`leaderboard/${currentUser.uid}`).set({
+                    name: currentUser.displayName,
+                    isVip: true
+                 });
+            }
+            
+            await fetchAndProcessUserData(); // Re-fetch and update UI
+            alert("Congratulations! You've unlocked 1 Month of FREE VIP Membership!");
+            navigateTo('settings');
+
+        } catch(error) {
+            console.error("Error redeeming streak:", error);
+            alert("Could not redeem streak due to an error. Please try again later.");
+            redeemStreakButton.disabled = false;
+            redeemStreakButton.textContent = "Redeem for 1 Month FREE VIP";
+        }
+    }
+
+    function updateStreakUI() {
+        if (userStreak > 0) {
+            streakCounter.style.display = 'flex';
+            streakCount.textContent = userStreak;
+            redeemStreakCount.textContent = userStreak;
+        } else {
+            streakCounter.style.display = 'none';
+            redeemStreakCount.textContent = 0;
         }
         
-        // Hide all views
+        redeemStreakButton.disabled = userStreak < STREAK_REDEEM_GOAL;
+    }
+
+    function updateVipRelatedUI() {
+        if (isVipUser) {
+            vipMembershipBtn.classList.add('active-vip');
+            vipBtnText.textContent = 'VIP Active';
+        } else {
+            vipMembershipBtn.classList.remove('active-vip');
+            vipBtnText.textContent = 'VIP Membership';
+        }
+        profileVipBadge.style.display = isVipUser ? 'inline-block' : 'none';
+    }
+
+
+    // =================================================================================
+    // Navigation Logic
+    // =================================================================================
+    function navigateTo(section) {
+        if (chatContainer.style.display === 'flex' || hindiChatContainer.style.display === 'flex' || adviceChatContainer.style.display === 'flex') {
+            saveActiveChat();
+        }
+        
         mainContent.style.display = 'none';
         chatContainer.style.display = 'none';
         hindiChatContainer.style.display = 'none';
+        adviceChatContainer.style.display = 'none';
         settingsContainer.style.display = 'none';
         gameContainer.style.display = 'none';
         howToUseContainer.style.display = 'none';
         privacyPolicyContainer.style.display = 'none';
         securityContainer.style.display = 'none';
+        profileContainer.style.display = 'none';
+        leaderboardContainer.style.display = 'none';
+        vipMembershipContainer.style.display = 'none';
         
-        // Update nav item active state
         homeNav.classList.remove('active');
         newChatNav.classList.remove('active');
+        leaderboardNav.classList.remove('active');
 
-        // Show the selected view
         if (section === 'home') {
             appTitle.textContent = "Squid AI";
             mainContent.style.display = 'flex';
             homeNav.classList.add('active');
+            activeChatType = null;
         } else if (section === 'chat') {
             appTitle.textContent = "Squid AI";
             chatContainer.style.display = 'flex';
             newChatNav.classList.add('active');
             activeChatType = 'english';
+        } else if (section === 'advice') {
+            appTitle.textContent = "Your Friend";
+            adviceChatContainer.style.display = 'flex';
+            newChatNav.classList.add('active');
+            activeChatType = 'advice';
         } else if (section === 'hindiChat') {
             appTitle.textContent = "Squid AI";
             hindiChatContainer.style.display = 'flex';
             newChatNav.classList.add('active');
             activeChatType = 'hindi';
         } else if (section === 'settings') {
-            appTitle.textContent = "Squid AI";
+            appTitle.textContent = "Settings";
             settingsContainer.style.display = 'flex';
             homeNav.classList.add('active');
             renderChatHistory();
@@ -1806,17 +2307,24 @@
             gameContainer.style.display = 'flex';
             homeNav.classList.add('active');
             resetGame();
+        } else if (section === 'leaderboard') {
+            appTitle.textContent = "Leaderboard";
+            leaderboardContainer.style.display = 'flex';
+            leaderboardNav.classList.add('active');
+            fetchAndRenderLeaderboard();
+        } else if (section === 'vipMembership') {
+            showInfoPage('vipMembership');
         }
     }
     
     function showInfoPage(page) {
-        // Hide all pages
         settingsContainer.style.display = 'none';
         howToUseContainer.style.display = 'none';
         privacyPolicyContainer.style.display = 'none';
         securityContainer.style.display = 'none';
+        profileContainer.style.display = 'none';
+        vipMembershipContainer.style.display = 'none';
         
-        // Show the requested page
         if (page === 'howToUse') {
             howToUseContainer.style.display = 'flex';
             appTitle.textContent = "How to Use";
@@ -1826,11 +2334,185 @@
         } else if (page === 'security') {
             securityContainer.style.display = 'flex';
             appTitle.textContent = "Security";
+        } else if (page === 'profile') {
+            profileContainer.style.display = 'flex';
+            appTitle.textContent = "Your Profile";
+            loadProfileData();
+        } else if (page === 'vipMembership') {
+            vipMembershipContainer.style.display = 'flex';
+            appTitle.textContent = "VIP Membership";
+            updateStreakUI();
         }
     }
 
     // =================================================================================
-    // English Chat Functions
+    // Leaderboard Functions
+    // =================================================================================
+    async function fetchAndRenderLeaderboard() {
+        leaderboardList.innerHTML = '<p>Loading leaderboard...</p>';
+
+        try {
+            const snapshot = await db.ref('leaderboard').orderByChild('isVip').equalTo(true).once('value');
+            const data = snapshot.val();
+
+            if (data) {
+                const users = Object.keys(data)
+                    .map(key => ({
+                        id: key,
+                        name: data[key].name,
+                        isVip: data[key].isVip
+                    }))
+                    .filter(user => user.name);
+                
+                renderLeaderboard(users);
+            } else {
+                 leaderboardList.innerHTML = '<p style="text-align: center; color: #ccc;">Leaderboard is empty. <br>Become a VIP and set your name to appear here!</p>';
+            }
+        } catch (error) {
+            console.error("Error fetching leaderboard:", error);
+            leaderboardList.innerHTML = '<p>Could not load leaderboard.</p>';
+        }
+    }
+
+    function renderLeaderboard(users) {
+        leaderboardList.innerHTML = '';
+        if (!users || users.length === 0) {
+            leaderboardList.innerHTML = '<p style="text-align: center; color: #ccc;">Leaderboard is empty. <br>Become a VIP and set your name to appear here!</p>';
+            return;
+        }
+
+        users.forEach((user, index) => {
+            const li = document.createElement('li');
+            li.className = 'leaderboard-item is-vip';
+            li.innerHTML = `
+                <span class="leaderboard-rank">${index + 1}</span>
+                <span class="leaderboard-name">${user.name} <i class="fas fa-crown vip-badge"></i></span>
+                <span class="leaderboard-score"><i class="fas fa-check-circle"></i> Member</span>
+            `;
+            leaderboardList.appendChild(li);
+        });
+    }
+
+    // =================================================================================
+    // Profile Page Functions
+    // =================================================================================
+    function loadProfileData() {
+        if (!currentUser) return;
+        profileEmail.textContent = currentUser.email;
+        profileNameInput.value = currentUser.displayName || '';
+        profileStatus.textContent = '';
+        updateVipRelatedUI();
+    }
+
+    async function handleSaveName() {
+        const newName = profileNameInput.value.trim();
+        if (!newName) {
+            profileStatus.textContent = "Name cannot be empty.";
+            profileStatus.className = 'fail';
+            return;
+        }
+        saveNameButton.disabled = true;
+        saveNameButton.textContent = "Saving...";
+        try {
+            await currentUser.updateProfile({ displayName: newName });
+            
+            if (isVipUser) {
+                await db.ref(`leaderboard/${currentUser.uid}`).set({
+                    name: newName,
+                    isVip: true
+                });
+            }
+
+            profileStatus.textContent = "Name updated successfully!";
+            profileStatus.className = 'success';
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            profileStatus.textContent = "Error: " + error.message;
+            profileStatus.className = 'fail';
+        } finally {
+            saveNameButton.disabled = false;
+            saveNameButton.textContent = "Save Name";
+        }
+    }
+
+    async function handleResetPassword() {
+        if (!currentUser || !currentUser.email) return;
+        resetPasswordButton.disabled = true;
+        try {
+            await auth.sendPasswordResetEmail(currentUser.email);
+            profileStatus.textContent = "Password reset link sent to your email.";
+            profileStatus.className = 'success';
+        } catch (error) {
+            console.error("Error sending password reset email:", error);
+            profileStatus.textContent = "Error: " + error.message;
+            profileStatus.className = 'fail';
+        } finally {
+            setTimeout(() => { resetPasswordButton.disabled = false; }, 5000);
+        }
+    }
+
+    // =================================================================================
+    // Daily Limit Logic
+    // =================================================================================
+    function getLimitData(chatType) {
+        if (!currentUser) return { count: 0, date: null };
+        const todayStr = new Date().toISOString().split('T')[0];
+        const key = `limit_${chatType}_${currentUser.uid}`;
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        const limit = isVipUser ? DAILY_MESSAGE_LIMIT_VIP : DAILY_MESSAGE_LIMIT_NORMAL;
+
+        if (data.date !== todayStr) {
+            return { count: limit, date: todayStr };
+        }
+        return data;
+    }
+
+    function saveLimitData(chatType, data) {
+        if (!currentUser) return;
+        const key = `limit_${chatType}_${currentUser.uid}`;
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function useOneMessage(chatType) {
+        let data = getLimitData(chatType);
+        if (data.count > 0) {
+            data.count--;
+            saveLimitData(chatType, data);
+            return true;
+        }
+        return false;
+    }
+
+    function updateLimitUI(chatType) {
+        const data = getLimitData(chatType);
+        const limit = isVipUser ? DAILY_MESSAGE_LIMIT_VIP : DAILY_MESSAGE_LIMIT_NORMAL;
+        const counterEl = (chatType === 'advice') ? adviceLimitCounter : hindiLimitCounter;
+        if (counterEl) {
+            counterEl.textContent = `Limit: ${data.count}/${limit}`;
+        }
+    }
+
+    function handleLimitReached(chatType) {
+        let inputEl, sendBtn, attachmentBtn, messagesContainer;
+        let limitOverMessage = "Daily limit reached. Come back tomorrow or redeem VIP for 2x limits!";
+        if (chatType === 'advice') {
+            [inputEl, sendBtn, messagesContainer] = [adviceChatInput, adviceSendButton, adviceChatMessages];
+        } else if (chatType === 'hindi') {
+            [inputEl, sendBtn, attachmentBtn, messagesContainer] = [hindiChatInput, hindiSendButton, hindiAttachmentButton, hindiChatMessages];
+            limitOverMessage = "दैनिक सीमा समाप्त। 2x सीमाओं के लिए वीआईपी में अपग्रेड करें!";
+        }
+        if (inputEl && sendBtn) {
+            inputEl.disabled = true;
+            sendBtn.disabled = true;
+            if (attachmentBtn) attachmentBtn.disabled = true;
+            const messageElement = createMessageElement(limitOverMessage, 'ai');
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    }
+
+    // =================================================================================
+    // Standard English Chat Functions
     // =================================================================================
     function startChat() {
         navigateTo('chat');
@@ -1844,7 +2526,6 @@
         chatMessages.innerHTML = '';
         currentChat = [];
         let prompt, aiGreeting;
-
         if (type === "learn") {
             prompt = "Tell me a fun fact about Artificial Intelligence.";
             aiGreeting = "Of course! Let's learn about AI. Here's a fun fact to start:";
@@ -1852,7 +2533,6 @@
             prompt = "Write a simple Python function to reverse a string.";
             aiGreeting = "Sure, I can help with that. Here is a Python function to get you started:";
         }
-
         addMessage(aiGreeting, 'ai');
         setTimeout(() => getAIResponse(prompt), 500);
     }
@@ -1860,7 +2540,6 @@
     async function sendMessage() {
         const messageText = chatInput.value.trim();
         if (!messageText || isTyping) return;
-
         addMessage(messageText, 'user');
         chatInput.value = '';
         await getAIResponse(messageText);
@@ -1868,34 +2547,28 @@
 
     async function getAIResponse(prompt) {
         isTyping = true;
-        simulateTyping();
-        
+        simulateTyping(chatMessages);
         try {
             const chatHistory = currentChat.map(msg => ({
                 role: msg.sender === 'user' ? "USER" : "CHATBOT",
                 message: msg.text
-            }));
-            chatHistory.pop();
-
+            })).slice(0, -1);
             const response = await fetch(COHERE_API_ENDPOINT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${COHERE_API_KEY}` },
                 body: JSON.stringify({ message: prompt, chat_history: chatHistory, model: "command-r-plus", temperature: 0.7 })
             });
-            
-            removeTypingIndicator();
+            removeTypingIndicator(chatMessages);
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || `API Error: ${response.statusText}`);
             }
             const data = await response.json();
-            
             if (data.text) addMessage(data.text, 'ai');
             else addMessage("I'm having trouble understanding. Could you please rephrase?", 'ai');
-
         } catch (error) {
             console.error('Cohere API Error:', error);
-            removeTypingIndicator();
+            removeTypingIndicator(chatMessages);
             addMessage("Sorry, I encountered an error: " + error.message, 'ai');
         } finally {
             isTyping = false;
@@ -1904,31 +2577,110 @@
 
     function addMessage(text, sender) {
         currentChat.push({ text, sender });
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message', `${sender}-message`);
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        const textNode = document.createElement('div');
-        textNode.innerText = text;
-
-        messageElement.innerHTML = `<div>${textNode.innerHTML.replace(/\n/g, '<br>')}</div><div class="message-time">${time}</div>`;
+        const messageElement = createMessageElement(text, sender);
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function simulateTyping() {
-        const typingElement = document.createElement('div');
-        typingElement.classList.add('typing-indicator');
-        typingElement.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
-        chatMessages.appendChild(typingElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+    // =================================================================================
+    // Advice Chat Functions
+    // =================================================================================
+    function startAdviceChat() {
+        navigateTo('advice');
+        adviceChatMessages.innerHTML = '';
+        currentAdviceChat = [];
+        addAdviceMessage("Hey dost! Main tumhara friend Squid AI hoon. Kya chal raha hai? You can tell me anything, I'm here for you.", 'ai');
+        updateLimitUI('advice');
+        const limitData = getLimitData('advice');
+        if (limitData.count <= 0) {
+            handleLimitReached('advice');
+        } else {
+            adviceChatInput.disabled = false;
+            adviceSendButton.disabled = false;
+        }
     }
 
-    function removeTypingIndicator() {
-        const typingIndicator = chatMessages.querySelector('.typing-indicator');
-        if (typingIndicator) typingIndicator.remove();
+    async function sendAdviceMessage() {
+        const limitData = getLimitData('advice');
+        if (limitData.count <= 0) {
+            handleLimitReached('advice'); return;
+        }
+        const messageText = adviceChatInput.value.trim();
+        if (!messageText || isTyping) return;
+        if (useOneMessage('advice')) {
+            updateLimitUI('advice');
+            addAdviceMessage(messageText, 'user');
+            adviceChatInput.value = '';
+            await getAdviceResponse(messageText);
+        } else {
+            handleLimitReached('advice');
+        }
     }
-    
+
+    function handleSuggestionClick(e) {
+        if (e.target.classList.contains('suggestion-chip')) {
+            const limitData = getLimitData('advice');
+            if (limitData.count <= 0) {
+                handleLimitReached('advice'); return;
+            }
+            if (useOneMessage('advice')) {
+                updateLimitUI('advice');
+                const messageText = e.target.textContent;
+                addAdviceMessage(messageText, 'user');
+                getAdviceResponse(messageText);
+            } else {
+                handleLimitReached('advice');
+            }
+        }
+    }
+
+    async function getAdviceResponse(prompt) {
+        isTyping = true;
+        simulateTyping(adviceChatMessages);
+        try {
+            const systemInstruction = {
+              parts: [{text: "You are Squid AI, a friendly and emotional AI friend. Your user is looking for advice or just wants to chat. Respond in a caring, empathetic, and friendly tone. Use a mix of Hindi and English (Hinglish). Keep your responses conversational and supportive, like you're talking to a close friend. Make them feel heard and understood."}]
+            };
+            const contents = currentAdviceChat.map(msg => ({
+                role: msg.sender === 'user' ? "user" : "model",
+                parts: [{ text: msg.text }]
+            }));
+            const response = await fetch(GEMINI_API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: contents, system_instruction: systemInstruction,
+                    generationConfig: { temperature: 0.9, topK: 1, topP: 1, maxOutputTokens: 2048 },
+                })
+            });
+            removeTypingIndicator(adviceChatMessages);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error.message || `API Error: ${response.status}`);
+            }
+            const data = await response.json();
+            const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (aiReply) {
+                addAdviceMessage(aiReply, 'ai');
+            } else {
+                addAdviceMessage("Yaar, I'm a bit confused. Can you say that again in a different way?", 'ai');
+            }
+        } catch (error) {
+            console.error('Gemini API Error (Advice Chat):', error);
+            removeTypingIndicator(adviceChatMessages);
+            addAdviceMessage("Sorry yaar, kuch technical problem ho gayi: " + error.message, 'ai');
+        } finally {
+            isTyping = false;
+        }
+    }
+
+    function addAdviceMessage(text, sender) {
+        currentAdviceChat.push({ text, sender });
+        const messageElement = createMessageElement(text, sender);
+        adviceChatMessages.appendChild(messageElement);
+        adviceChatMessages.scrollTop = adviceChatMessages.scrollHeight;
+    }
+
     // =================================================================================
     // Hindi Chat Functions
     // =================================================================================
@@ -1938,50 +2690,54 @@
         currentHindiChat = [];
         clearHindiPreview();
         addHindiMessage("नमस्ते! मैं स्क्विड एआई हूँ। आप कोई तस्वीर भेज सकते हैं या मुझसे कुछ पूछ सकते हैं।", 'ai');
+        updateLimitUI('hindi');
+        const limitData = getLimitData('hindi');
+        if (limitData.count <= 0) {
+            handleLimitReached('hindi');
+        } else {
+            hindiChatInput.disabled = false;
+            hindiSendButton.disabled = false;
+            hindiAttachmentButton.disabled = false;
+        }
     }
 
     async function sendHindiMessage() {
+        const limitData = getLimitData('hindi');
+        if (limitData.count <= 0) {
+            handleLimitReached('hindi'); return;
+        }
         const messageText = hindiChatInput.value.trim();
         const fileToSend = selectedHindiFile;
-
         if ((!messageText && !fileToSend) || isTyping) return;
-
-        addHindiMessage(messageText, 'user', fileToSend ? fileToSend.base64 : null);
-        hindiChatInput.value = '';
-        clearHindiPreview();
-        
-        await getGeminiResponse(messageText, fileToSend);
+        if (useOneMessage('hindi')) {
+            updateLimitUI('hindi');
+            addHindiMessage(messageText, 'user', fileToSend ? fileToSend.base64 : null);
+            hindiChatInput.value = '';
+            clearHindiPreview();
+            await getGeminiHindiResponse(messageText, fileToSend);
+        } else {
+            handleLimitReached('hindi');
+        }
     }
     
     function handleHindiFileSelect(event) {
         const file = event.target.files[0];
         if (!file) return;
-
-        // Validate file type
         const validImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
         if (!validImageTypes.includes(file.type)) {
             alert('Please select a valid image file (JPEG, PNG, or WEBP).');
             return;
         }
-
         const reader = new FileReader();
         reader.onload = function(e) {
-            selectedHindiFile = {
-                base64: e.target.result,
-                mimeType: file.type
-            };
+            selectedHindiFile = { base64: e.target.result, mimeType: file.type };
             displayHindiImagePreview(e.target.result);
         };
         reader.readAsDataURL(file);
     }
     
     function displayHindiImagePreview(imageDataUrl) {
-        hindiImagePreviewContainer.innerHTML = `
-            <div class="image-preview">
-                <button class="remove-preview-btn" title="Remove image">×</button>
-                <img src="${imageDataUrl}" alt="Image preview">
-            </div>
-        `;
+        hindiImagePreviewContainer.innerHTML = `<div class="image-preview"><button class="remove-preview-btn" title="Remove image">×</button><img src="${imageDataUrl}" alt="Image preview"></div>`;
         hindiImagePreviewContainer.querySelector('.remove-preview-btn').addEventListener('click', clearHindiPreview);
     }
 
@@ -1991,51 +2747,29 @@
         hindiImagePreviewContainer.innerHTML = '';
     }
 
-    async function getGeminiResponse(prompt, file) {
-        if (!checkAndIncrementHindiUsage()) {
-            addHindiMessage("आज के लिए आपकी फ्री लिमिट समाप्त हो गई है। कृपया कल फिर प्रयास करें।\n(Your free daily limit has been reached. Please try again tomorrow.)", 'ai');
-            return;
-        }
-
+    async function getGeminiHindiResponse(prompt, file) {
         isTyping = true;
-        simulateHindiTyping();
-        
+        simulateTyping(hindiChatMessages);
         try {
-            // Construct the parts for the multimodal request
             const parts = [];
-            if (prompt) {
-                parts.push({ text: prompt });
-            }
-            if (file) {
-                parts.push({
-                    inline_data: {
-                        mime_type: file.mimeType,
-                        data: file.base64.split(',')[1] // Remove the Data URL prefix
-                    }
-                });
-            }
-
+            if (prompt) parts.push({ text: prompt });
+            if (file) parts.push({ inline_data: { mime_type: file.mimeType, data: file.base64.split(',')[1] } });
             const response = await fetch(GEMINI_API_ENDPOINT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: parts }]
-                })
+                body: JSON.stringify({ contents: [{ parts: parts }] })
             });
-            
-            removeHindiTypingIndicator();
+            removeTypingIndicator(hindiChatMessages);
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error.message || `API Error: ${response.status}`);
             }
             const data = await response.json();
-            
             const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "माफ़ कीजिये, मुझे कोई प्रतिक्रिया नहीं मिली।";
             addHindiMessage(aiReply, 'ai');
-
         } catch (error) {
-            console.error('Gemini API Error:', error);
-            removeHindiTypingIndicator();
+            console.error('Gemini API Error (Hindi Chat):', error);
+            removeTypingIndicator(hindiChatMessages);
             addHindiMessage("माफ़ कीजिये, एक त्रुटि हुई: " + error.message, 'ai');
         } finally {
             isTyping = false;
@@ -2044,65 +2778,49 @@
 
     function addHindiMessage(text, sender, imageUrl = null) {
         currentHindiChat.push({ text, sender, imageUrl });
+        const messageElement = createMessageElement(text, sender, imageUrl);
+        hindiChatMessages.appendChild(messageElement);
+        hindiChatMessages.scrollTop = hindiChatMessages.scrollHeight;
+    }
+
+    // =================================================================================
+    // Helper Functions for Chat UI
+    // =================================================================================
+    function createMessageElement(text, sender, imageUrl = null) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', `${sender}-message`);
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
         let messageContent = '';
-
         if (imageUrl) {
             messageContent += `<img src="${imageUrl}" class="message-image" alt="User upload">`;
         }
-
         if (text) {
             const textNode = document.createElement('div');
             textNode.innerText = text;
             messageContent += `<div>${textNode.innerHTML.replace(/\n/g, '<br>')}</div>`;
         }
-        
         messageElement.innerHTML = `${messageContent}<div class="message-time">${time}</div>`;
-        hindiChatMessages.appendChild(messageElement);
-        hindiChatMessages.scrollTop = hindiChatMessages.scrollHeight;
+        return messageElement;
     }
 
-    function simulateHindiTyping() {
+    function simulateTyping(messagesContainer) {
         const typingElement = document.createElement('div');
         typingElement.classList.add('typing-indicator');
         typingElement.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
-        hindiChatMessages.appendChild(typingElement);
-        hindiChatMessages.scrollTop = hindiChatMessages.scrollHeight;
+        messagesContainer.appendChild(typingElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    function removeHindiTypingIndicator() {
-        const typingIndicator = hindiChatMessages.querySelector('.typing-indicator');
+    function removeTypingIndicator(messagesContainer) {
+        const typingIndicator = messagesContainer.querySelector('.typing-indicator');
         if (typingIndicator) typingIndicator.remove();
     }
-
-    function checkAndIncrementHindiUsage() {
-        if (!currentUser) return false;
-        const limit = 100;
-        const usageKey = `hindiUsage_${currentUser.uid}`;
-        const todayStr = new Date().toISOString().split('T')[0];
-        
-        const usageData = JSON.parse(localStorage.getItem(usageKey) || '{}');
-        const todaysCount = usageData[todayStr] || 0;
-
-        if (todaysCount >= limit) {
-            console.warn(`Hindi chat daily limit of ${limit} reached for user.`);
-            return false;
-        }
-
-        usageData[todayStr] = todaysCount + 1;
-        localStorage.setItem(usageKey, JSON.stringify(usageData));
-        return true;
-    }
-
+    
     // =================================================================================
     // IQ Game Functions
     // =================================================================================
     function resetGame() {
-        currentRound = 0;
-        gameScore = 0;
+        currentRound = 0; gameScore = 0;
         startGameButton.style.display = 'block';
         restartGameButton.style.display = 'none';
         iqResult.textContent = '';
@@ -2110,88 +2828,57 @@
         timerDisplay.textContent = '⏱️ Time: 5';
         emojiContainer.innerHTML = '';
     }
-
     function startGame() {
-        currentRound = 0;
-        gameScore = 0;
+        currentRound = 0; gameScore = 0;
         startGameButton.style.display = 'none';
         restartGameButton.style.display = 'none';
         iqResult.textContent = '';
         nextRound();
     }
-
     function nextRound() {
-        if (currentRound >= rounds.length) {
-            endGame();
-            return;
-        }
-
+        if (currentRound >= rounds.length) { endGame(); return; }
         const round = rounds[currentRound];
         roundTitle.textContent = `Round ${currentRound + 1}: Tap ${round.correct}`;
         emojiContainer.innerHTML = '';
-        round.options.sort(() => Math.random() - 0.5);
-        round.options.forEach(emoji => {
+        round.options.sort(() => Math.random() - 0.5).forEach(emoji => {
             const span = document.createElement("span");
-            span.textContent = emoji;
-            span.className = "emoji";
+            span.textContent = emoji; span.className = "emoji";
             span.onclick = () => handleAnswer(emoji);
             emojiContainer.appendChild(span);
         });
-
-        // Set time per round
         timeLeft = currentRound >= 6 ? hardTime : easyTime;
         updateTimer();
         gameTimer = setInterval(() => {
-            timeLeft--;
-            updateTimer();
-            if (timeLeft <= 0) {
-                clearInterval(gameTimer);
-                currentRound++;
-                nextRound();
-            }
+            timeLeft--; updateTimer();
+            if (timeLeft <= 0) { clearInterval(gameTimer); currentRound++; nextRound(); }
         }, 1000);
     }
-
-    function updateTimer() {
-        timerDisplay.textContent = `⏱️ Time: ${timeLeft}`;
-    }
-
+    function updateTimer() { timerDisplay.textContent = `⏱️ Time: ${timeLeft}`; }
     function handleAnswer(emoji) {
-        const round = rounds[currentRound];
-        if (emoji === round.correct) gameScore++;
-        clearInterval(gameTimer);
-        currentRound++;
-        nextRound();
+        if (emoji === rounds[currentRound].correct) gameScore++;
+        clearInterval(gameTimer); currentRound++; nextRound();
     }
-
     function endGame() {
         emojiContainer.innerHTML = '';
         roundTitle.textContent = "Game Over!";
         timerDisplay.textContent = "";
-
         let iq;
         if (gameScore <= 3) iq = randomBetween(100, 110);
         else if (gameScore <= 6) iq = randomBetween(111, 125);
         else if (gameScore <= 8) iq = randomBetween(126, 139);
         else iq = randomBetween(140, 150);
-
         iqResult.textContent = `🧠 Your IQ is: ${iq}`;
         restartGameButton.style.display = 'block';
     }
-
-    function randomBetween(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    function randomBetween(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
     // =================================================================================
     // Theme Persistence
     // =================================================================================
     function toggleTheme() {
         document.body.classList.toggle('light-mode');
-        const theme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-        localStorage.setItem('theme', theme);
+        localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
     }
-
     function loadTheme() {
         const theme = localStorage.getItem('theme');
         if (theme === 'light') {
@@ -2208,8 +2895,7 @@
     // =================================================================================
     function getHistory() {
         if (!currentUser) return [];
-        const history = localStorage.getItem(`chatHistory_${currentUser.uid}`);
-        return history ? JSON.parse(history) : [];
+        return JSON.parse(localStorage.getItem(`chatHistory_${currentUser.uid}`) || '[]');
     }
     
     function saveHistory(history) {
@@ -2218,34 +2904,29 @@
     }
 
     function saveActiveChat() {
-        const chatToSave = activeChatType === 'hindi' ? currentHindiChat : currentChat;
-        if (chatToSave.length > 1) { // Only save non-empty chats
+        let chatToSave, lang;
+        if (activeChatType === 'english') { [chatToSave, lang] = [currentChat, 'en']; } 
+        else if (activeChatType === 'hindi') { [chatToSave, lang] = [currentHindiChat, 'hi']; } 
+        else if (activeChatType === 'advice') { [chatToSave, lang] = [currentAdviceChat, 'advice']; } 
+        else { return; }
+        
+        if (chatToSave && chatToSave.length > 1) {
             const history = getHistory();
             const userMessages = chatToSave.filter(m => m.sender === 'user');
-            
-            // Generate a title
-            let title = "Chat"; // Default title
+            let title = lang === 'hi' ? "हिंदी चैट" : (lang === 'advice' ? "Advice Session" : "Chat");
             if (userMessages.length > 0) {
-                 title = userMessages[0].text || (userMessages[0].imageUrl ? "Image Chat" : "Chat");
-            } else {
-                 title = (activeChatType === 'hindi' ? "हिंदी चैट" : "Chat");
+                 title = userMessages[0].text || (userMessages[0].imageUrl ? "Image Chat" : title);
             }
-            
             history.unshift({
                 id: Date.now(),
                 title: title.substring(0, 40) + (title.length > 40 ? '...' : ''),
                 messages: chatToSave,
-                lang: activeChatType === 'hindi' ? 'hi' : 'en'
+                lang: lang
             });
-            
-            saveHistory(history.slice(0, 20));
-
-            // Reset the saved chat
-            if(activeChatType === 'hindi') {
-                currentHindiChat = [];
-                clearHindiPreview();
-            }
-            else currentChat = [];
+            saveHistory(history.slice(0, 50));
+            if(activeChatType === 'english') currentChat = [];
+            if(activeChatType === 'hindi') { currentHindiChat = []; clearHindiPreview(); }
+            if(activeChatType === 'advice') currentAdviceChat = [];
         }
     }
 
@@ -2253,12 +2934,12 @@
         chatHistoryList.innerHTML = '';
         const history = getHistory();
         noHistoryMessage.style.display = history.length === 0 ? 'block' : 'none';
-
         history.forEach(chat => {
             const li = document.createElement('li');
             li.className = 'history-item';
-            const langBadge = chat.lang === 'hi' ? '<span class="lang-badge">हि</span>' : '';
-
+            let langBadge = '';
+            if(chat.lang === 'hi') langBadge = '<span class="lang-badge">हि</span>';
+            if(chat.lang === 'advice') langBadge = '<span class="lang-badge" title="Advice Chat"><i class="fas fa-hand-holding-heart"></i></span>';
             li.innerHTML = `
                 <div style="display: flex; align-items: center; overflow: hidden;">
                     ${langBadge}
@@ -2267,13 +2948,9 @@
                 <div class="history-actions">
                     <button class="view-btn" title="View"><i class="fas fa-eye"></i></button>
                     <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
-                </div>
-            `;
+                </div>`;
             li.querySelector('.view-btn').addEventListener('click', () => loadChatFromHistory(chat.id));
-            li.querySelector('.delete-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                deleteChatFromHistory(chat.id);
-            });
+            li.querySelector('.delete-btn').addEventListener('click', (e) => { e.stopPropagation(); deleteChatFromHistory(chat.id); });
             chatHistoryList.appendChild(li);
         });
     }
@@ -2283,40 +2960,34 @@
         const chat = history.find(c => c.id === chatId);
         if (chat) {
             if (chat.lang === 'hi') {
-                navigateTo('hindiChat');
+                startHindiChat(); 
+                currentHindiChat = chat.messages;
                 hindiChatMessages.innerHTML = '';
-                currentHindiChat = [];
-                clearHindiPreview();
                 chat.messages.forEach(msg => addHindiMessage(msg.text, msg.sender, msg.imageUrl));
+            } else if (chat.lang === 'advice') {
+                startAdviceChat(); 
+                currentAdviceChat = chat.messages;
+                adviceChatMessages.innerHTML = '';
+                chat.messages.forEach(msg => addAdviceMessage(msg.text, msg.sender));
             } else {
-                navigateTo('chat');
+                startChat(); 
+                currentChat = chat.messages;
                 chatMessages.innerHTML = '';
-                currentChat = [];
                 chat.messages.forEach(msg => addMessage(msg.text, msg.sender));
             }
         }
     }
     
     function deleteChatFromHistory(chatId) {
-        let history = getHistory();
-        history = history.filter(c => c.id !== chatId);
+        let history = getHistory().filter(c => c.id !== chatId);
         saveHistory(history);
         renderChatHistory();
     }
-
+    
     // =================================================================================
     // Start the App
     // =================================================================================
     setupEventListeners();
-
-    // Initialize Auto Ads after page load
-    window.addEventListener('load', () => {
-        try {
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-            console.error("Auto ads initialization error:", e);
-        }
-    });
 
 </script>
 </body>
