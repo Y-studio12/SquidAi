@@ -377,6 +377,32 @@
             to { box-shadow: 0 0 20px rgba(0, 224, 208, 0.6), 0 0 30px rgba(0, 224, 208, 0.4); }
         }
 
+        /* NEW: Voice listening corner effect */
+        .corner-glow {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, var(--primary), transparent 70%);
+            filter: blur(50px);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .corner-glow.active {
+            opacity: 0.8;
+            animation: cornerPulse 2s infinite alternate;
+        }
+        #corner-tl { top: -50px; left: -50px; }
+        #corner-tr { top: -50px; right: -50px; background: radial-gradient(circle, var(--accent), transparent 70%); }
+        #corner-bl { bottom: -50px; left: -50px; background: radial-gradient(circle, var(--accent), transparent 70%); }
+        #corner-br { bottom: -50px; right: -50px; }
+
+        @keyframes cornerPulse {
+            from { transform: scale(0.8); }
+            to { transform: scale(1.2); }
+        }
+
         #voiceStatus {
             position: absolute;
             bottom: -100px; /* Initially hidden */
@@ -868,7 +894,7 @@
             font-weight: 500;
         }
         
-        .settings-container {
+        .settings-container, .info-container {
             display: none;
             flex-direction: column;
             gap: 20px;
@@ -1171,10 +1197,6 @@
         }
         
         .info-container {
-            display: none;
-            flex-direction: column;
-            gap: 25px;
-            padding: 25px;
             height: 100%;
             overflow-y: auto;
         }
@@ -1652,6 +1674,7 @@
                 <i class="fas fa-lock"></i>
                 <input type="password" class="login-input" id="passwordInput" placeholder="Password" autocomplete="current-password">
             </div>
+             <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
             <div class="error-message" id="generalError"></div>
             <button class="login-button" id="authButton">Log In</button>
             <div class="form-footer">
@@ -1661,6 +1684,12 @@
     </div>
 
     <div class="app-container" id="appContainer">
+        <!-- NEW: Corner glow effects for voice assistant -->
+        <div class="corner-glow" id="corner-tl"></div>
+        <div class="corner-glow" id="corner-tr"></div>
+        <div class="corner-glow" id="corner-bl"></div>
+        <div class="corner-glow" id="corner-br"></div>
+        
         <div class="app-header">
             <div class="logo-container">
                 <div class="app-logo">🦑</div>
@@ -1745,6 +1774,11 @@
                     <label><i class="fas fa-user-circle"></i> Your Profile</label>
                     <i class="fas fa-chevron-right"></i>
                 </div>
+                <!-- NEW: Assistant Settings Button -->
+                <div class="settings-item" id="assistantSettingsBtn">
+                    <label><i class="fas fa-microphone-alt"></i> Voice Assistant</label>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
                 <div class="settings-item" id="howToUseBtn">
                     <label><i class="fas fa-book"></i> How to Use</label>
                     <i class="fas fa-chevron-right"></i>
@@ -1802,6 +1836,40 @@
                 </button>
             </div>
             
+             <!-- NEW: Assistant Settings Page -->
+            <div class="info-container" id="assistantSettingsContainer">
+                <div class="info-header">
+                    <i class="fas fa-microphone-alt"></i>
+                    <h2>Voice Assistant</h2>
+                </div>
+                <div class="info-content">
+                    <h3>Daily Usage</h3>
+                    <div class="profile-field">
+                        <label>Commands Used Today</label>
+                        <div class="value" id="voiceCommandLimitDisplay">Loading...</div>
+                    </div>
+                    <button class="unlock-vip-button" id="assistantUpgradeBtn" style="display: none;">
+                        <i class="fas fa-crown"></i> Get Unlimited Commands
+                    </button>
+
+                    <h3 style="margin-top: 30px;">How to Use the Assistant</h3>
+                    <p>Activate the assistant by tapping the <i class="fas fa-microphone-alt"></i> icon in the header.</p>
+                    <ol>
+                        <li>Say the hotword <strong>"Hey Squid"</strong> to get its attention. The screen corners will glow.</li>
+                        <li>Ask your question clearly. For example, <em>"Hey Squid, what's the weather like?"</em></li>
+                        <li>The assistant will answer and then wait for you to say "Hey Squid" again for your next command.</li>
+                        <li>If you say the hotword but don't ask a question within 8 seconds, it will reset.</li>
+                    </ol>
+                    <div class="highlight-box">
+                       <p><i class="fas fa-lightbulb"></i> Non-VIP users are limited to <strong>15 commands per day</strong>. Upgrade to VIP for unlimited access!</p>
+                    </div>
+                </div>
+                 <button class="back-button" id="backFromAssistant">
+                    <i class="fas fa-arrow-left"></i> Back to Settings
+                </button>
+            </div>
+
+
             <!-- Leaderboard Container -->
             <div class="leaderboard-container" id="leaderboardContainer">
                 <div class="info-header">
@@ -1857,7 +1925,7 @@
                     <p>Welcome to Squid AI! Here's how to make the most of your experience:</p>
                     
                     <h3>Voice Assistant 🎤</h3>
-                    <p>Tap the microphone icon in the header to activate the assistant. Once active, say <strong>"Hey Squid"</strong> followed by your command. For example: <em>"Hey Squid, what's the time?"</em> or <em>"Hey Squid, tell me a joke."</em> Non-VIP users have a daily limit of 15 voice commands.</p>
+                    <p>Tap the microphone icon in the header to activate. Once active, say <strong>"Hey Squid"</strong> followed by your command. For example: <em>"Hey Squid, what's the time?"</em> or <em>"Hey Squid, tell me a joke."</em> Non-VIP users have a daily limit. Check the Voice Assistant settings for more details.</p>
 
                     <h3>Daily Streak 🔥</h3>
                     <p>Open the app every day to increase your daily streak. Reach a 30-day streak to redeem a <strong>FREE month of VIP membership!</strong></p>
@@ -2096,7 +2164,7 @@
     const DAILY_MESSAGE_LIMIT_VIP = 100;
     const STREAK_REDEEM_GOAL = 30;
 
-    // NEW: Voice Assistant daily limit for non-VIPs
+    // UPDATED: Voice Assistant daily limit for non-VIPs
     const DAILY_VOICE_LIMIT = 15;
 
 
@@ -2207,7 +2275,7 @@
     const backFromVip = document.getElementById('backFromVip');
     const unlockVipPageButton = document.getElementById('unlockVipPageButton');
     
-    // RESTORED: Ad Banner elements
+    // Ad Banner elements
     const adBannerContainer = document.getElementById('adBannerContainer');
     const adCountdown = document.getElementById('adCountdown');
     const adUnlockButton = document.getElementById('adUnlockButton');
@@ -2220,16 +2288,22 @@
     const redeemStreakCount = document.getElementById('redeemStreakCount');
     const redeemStreakButton = document.getElementById('redeemStreakButton');
 
-    // --- VOICE ASSISTANT REFACTORED LOGIC ---
+    // --- NEW/UPDATED VOICE ASSISTANT ELEMENTS ---
     const micButton = document.getElementById('micButton');
     const voiceStatus = document.getElementById('voiceStatus');
+    const cornerGlows = document.querySelectorAll('.corner-glow');
+    const assistantSettingsBtn = document.getElementById('assistantSettingsBtn');
+    const assistantSettingsContainer = document.getElementById('assistantSettingsContainer');
+    const voiceCommandLimitDisplay = document.getElementById('voiceCommandLimitDisplay');
+    const assistantUpgradeBtn = document.getElementById('assistantUpgradeBtn');
+    const backFromAssistant = document.getElementById('backFromAssistant');
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     let synth = window.speechSynthesis;
     let isAssistantOn = false;
-    let isListeningForCommand = false; // NEW state to track if we're waiting for a command after hotword
+    let isListeningForCommand = false;
+    let commandTimeout;
     let userVoiceLimit = { count: DAILY_VOICE_LIMIT, date: '' };
-    // --- VOICE ASSISTANT CODE END ---
 
     // =================================================================================
     // App State
@@ -2282,8 +2356,8 @@
 
     async function initializeAppState() {
         showApp();
-        await fetchAndProcessUserData(); // This now also fetches voice limit
-        initializeVoiceAssistant(); // Initialize voice assistant after user data is ready
+        await fetchAndProcessUserData();
+        initializeVoiceAssistant(); 
     }
     
     function setupEventListeners() {
@@ -2342,8 +2416,12 @@
         });
         
         redeemStreakButton.addEventListener('click', redeemVipWithStreak);
-
+        
+        // New Voice Assistant Listeners
         micButton.addEventListener('click', toggleAssistant);
+        assistantSettingsBtn.addEventListener('click', () => showInfoPage('assistantSettings'));
+        backFromAssistant.addEventListener('click', () => navigateTo('settings'));
+        assistantUpgradeBtn.addEventListener('click', () => showInfoPage('vipMembership'));
     }
     
     function showLogin() {
@@ -2354,7 +2432,6 @@
         passwordInput.value = '';
         clearErrors();
 
-        // Ensure assistant is off on logout
         if (isAssistantOn) {
             stopAssistant();
         }
@@ -2447,7 +2524,7 @@
 
             processVipStatus(userData);
             await processUserStreak(userData);
-            await processVoiceLimit(userData); // NEW: Process voice limit
+            await processVoiceLimit(userData); 
 
             updateVipRelatedUI();
             updateStreakUI();
@@ -2498,21 +2575,18 @@
         userStreak = currentStreak;
     }
 
-    // UPDATED: Function to handle voice assistant limits from Firebase
     async function processVoiceLimit(userData) {
         if (isVipUser) {
-            userVoiceLimit = { count: 999, date: '' }; // Effectively unlimited for VIP
+            userVoiceLimit = { count: 999, date: '' }; 
             return;
         }
         const todayStr = new Date().toISOString().split('T')[0];
         const voiceData = userData.voiceAssistant || {};
         
         if (voiceData.date !== todayStr) {
-            // It's a new day, reset the limit
             userVoiceLimit = { count: DAILY_VOICE_LIMIT, date: todayStr };
             await db.ref(`users/${currentUser.uid}/voiceAssistant`).set(userVoiceLimit);
         } else {
-            // It's the same day, use the stored count
             userVoiceLimit = { count: voiceData.count, date: todayStr };
         }
     }
@@ -2596,12 +2670,9 @@
         adviceChatContainer.style.display = 'none';
         settingsContainer.style.display = 'none';
         gameContainer.style.display = 'none';
-        howToUseContainer.style.display = 'none';
-        privacyPolicyContainer.style.display = 'none';
-        securityContainer.style.display = 'none';
-        profileContainer.style.display = 'none';
         leaderboardContainer.style.display = 'none';
-        vipMembershipContainer.style.display = 'none';
+
+        document.querySelectorAll('.info-container').forEach(c => c.style.display = 'none');
         
         homeNav.classList.remove('active');
         newChatNav.classList.remove('active');
@@ -2642,18 +2713,14 @@
             leaderboardContainer.style.display = 'flex';
             leaderboardNav.classList.add('active');
             fetchAndRenderLeaderboard();
-        } else if (section === 'vipMembership') {
-            showInfoPage('vipMembership');
+        } else if (section.startsWith('info-')) {
+             showInfoPage(section.split('-')[1]);
         }
     }
     
     function showInfoPage(page) {
         settingsContainer.style.display = 'none';
-        howToUseContainer.style.display = 'none';
-        privacyPolicyContainer.style.display = 'none';
-        securityContainer.style.display = 'none';
-        profileContainer.style.display = 'none';
-        vipMembershipContainer.style.display = 'none';
+        document.querySelectorAll('.info-container').forEach(c => c.style.display = 'none');
         
         if (page === 'howToUse') {
             howToUseContainer.style.display = 'flex';
@@ -2672,36 +2739,52 @@
             vipMembershipContainer.style.display = 'flex';
             appTitle.textContent = "VIP Membership";
             updateStreakUI();
+        } else if (page === 'assistantSettings') {
+            assistantSettingsContainer.style.display = 'flex';
+            appTitle.textContent = "Voice Assistant";
+            renderAssistantSettingsPage();
+        }
+    }
+
+    function renderAssistantSettingsPage() {
+        if(isVipUser) {
+            voiceCommandLimitDisplay.textContent = "Unlimited (VIP Member)";
+            assistantUpgradeBtn.style.display = 'none';
+        } else {
+            voiceCommandLimitDisplay.textContent = `${userVoiceLimit.count} / ${DAILY_VOICE_LIMIT} remaining`;
+            if (userVoiceLimit.count <= 0) {
+                 assistantUpgradeBtn.style.display = 'block';
+            } else {
+                 assistantUpgradeBtn.style.display = 'none';
+            }
         }
     }
 
     // =================================================================================
-    // --- VOICE ASSISTANT REFACTORED LOGIC ---
+    // VOICE ASSISTANT - REFACTORED LOGIC
     // =================================================================================
 
     function initializeVoiceAssistant() {
         if (!SpeechRecognition) {
-            console.log("Speech Recognition not supported in this browser.");
-            micButton.style.display = 'none'; // Hide button if not supported
+            micButton.style.display = 'none';
             return;
         }
 
         recognition = new SpeechRecognition();
-        recognition.continuous = false; // We will manually restart it for a continuous feel
+        recognition.continuous = true;
         recognition.lang = 'en-IN';
-        recognition.interimResults = false; // We only care about the final result
+        recognition.interimResults = false;
 
         recognition.onresult = handleVoiceResult;
-        recognition.onend = handleVoiceEnd;
+        recognition.onend = () => { if (isAssistantOn) recognition.start(); };
         recognition.onerror = handleVoiceError;
     }
     
     function startAssistant() {
         isAssistantOn = true;
-        isListeningForCommand = false;
         micButton.classList.add('active');
-        updateVoiceStatus("Waiting for 'Hey Squid'...");
         voiceStatus.classList.add('visible');
+        updateVoiceStatus("Waiting for 'Hey Squid'...");
         try {
             recognition.start();
         } catch (e) {
@@ -2711,32 +2794,27 @@
 
     function stopAssistant() {
         isAssistantOn = false;
-        isListeningForCommand = false;
         micButton.classList.remove('active');
         voiceStatus.classList.remove('visible');
-        if (recognition) {
-            recognition.stop();
-        }
-        if (synth.speaking) {
-            synth.cancel();
-        }
+        if (recognition) recognition.stop();
+        if (synth.speaking) synth.cancel();
+        clearTimeout(commandTimeout);
+        setCornerGlow(false);
     }
 
     async function toggleAssistant() {
         if (isAssistantOn) {
             stopAssistant();
         } else {
-            // Check limit for non-VIP users before starting
             if (!isVipUser) {
-                // Refresh limit data from firebase just in case
                 await processVoiceLimit((await db.ref(`users/${currentUser.uid}`).once('value')).val() || {});
                 if (userVoiceLimit.count <= 0) {
-                    updateVoiceStatus(`Daily limit of ${DAILY_VOICE_LIMIT} reached.`);
+                    updateVoiceStatus(`Daily limit reached.`);
                     voiceStatus.classList.add('visible');
                     speak("Aapki daily voice assistant limit poori ho gayi hai. Unlimited access ke liye VIP membership upgrade karein.");
                     setTimeout(() => {
                         voiceStatus.classList.remove('visible');
-                        showInfoPage('vipMembership');
+                        showInfoPage('assistantSettings');
                     }, 4000);
                     return;
                 }
@@ -2744,88 +2822,75 @@
             startAssistant();
         }
     }
+    
+    function setCornerGlow(active) {
+        cornerGlows.forEach(glow => {
+            if (active) glow.classList.add('active');
+            else glow.classList.remove('active');
+        });
+    }
 
     function handleVoiceResult(event) {
-        const transcript = event.results[0][0].transcript.toLowerCase().trim();
+        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
         console.log("Heard:", transcript);
+        const hotword = "hey squid";
 
         if (isListeningForCommand) {
+            clearTimeout(commandTimeout);
+            setCornerGlow(false);
+            isListeningForCommand = false;
             handleCommand(transcript);
-        } else {
-            const hotword = "hey squid";
-            if (transcript.startsWith(hotword)) {
-                const command = transcript.substring(hotword.length).trim();
-                
-                if (command) {
-                    // Command was said with hotword
-                    handleCommand(command);
-                } else {
-                    // Only hotword was said
-                    isListeningForCommand = true;
-                    speak("Yes?");
-                    updateVoiceStatus("Listening for command...");
+        } else if (transcript.includes(hotword)) {
+            isListeningForCommand = true;
+            speak("Yes?");
+            setCornerGlow(true);
+            updateVoiceStatus("Listening for your command...");
+            
+            clearTimeout(commandTimeout);
+            commandTimeout = setTimeout(() => {
+                if (isListeningForCommand) {
+                    isListeningForCommand = false;
+                    setCornerGlow(false);
+                    updateVoiceStatus("Didn't hear anything. Waiting for 'Hey Squid'...");
                 }
-            }
+            }, 8000);
         }
     }
 
     async function handleCommand(command) {
-        if (!command) {
-            isListeningForCommand = false;
-            return;
-        }
+        if (!command) return;
 
         updateVoiceStatus(`Processing: "${command}"`);
-        isListeningForCommand = false;
 
-        // Decrement limit for non-VIP users only when a valid command is processed
         if (!isVipUser) {
+            if (userVoiceLimit.count <= 0) {
+                speak("You have reached your daily limit for voice commands.");
+                stopAssistant();
+                showInfoPage('assistantSettings');
+                return;
+            }
             userVoiceLimit.count--;
             await db.ref(`users/${currentUser.uid}/voiceAssistant`).set(userVoiceLimit);
             console.log(`Voice limit remaining: ${userVoiceLimit.count}`);
         }
 
         let responseText = '';
-
-        // --- Local Commands (Instant) ---
         if (command.includes('time')) {
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            responseText = `The current time is ${time}`;
+            responseText = `The current time is ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         } else if (command.includes('date')) {
-            const date = new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-            responseText = `Today is ${date}`;
-        } else if (command.includes('my name')) {
-            responseText = currentUser.displayName ? `Your name is ${currentUser.displayName}` : "You haven't set a name yet. Please set it in your profile.";
-        } else if (command.includes('your name')) {
-            responseText = "My name is Squid AI. It's a pleasure to assist you.";
-        } else if (command.includes('home')) {
-            navigateTo('home');
-            responseText = 'Okay, opening the home page.';
-        } else if (command.includes('setting') || command.includes('settings')) {
-            navigateTo('settings');
-            responseText = 'Opening settings.';
-        } else if (command.includes('iq') || command.includes('calculator')) {
-            navigateTo('game');
-            responseText = "Let's test your IQ! Opening the game.";
-        } else if (command.includes('leaderboard')) {
-            navigateTo('leaderboard');
-            responseText = 'Showing the global leaderboard.';
-        } else if (command.includes('new chat')) {
-            startChat();
-            responseText = 'Starting a new chat for you.';
+            responseText = `Today is ${new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}`;
         } else if (command.includes('logout') || command.includes('log out')) {
             responseText = 'Okay, logging you out. Goodbye!';
-            speak(responseText); // Speak before logging out
+            speak(responseText);
             setTimeout(() => handleLogout(), 2000);
-            return; // Stop further execution
+            return;
         }
 
         if (responseText) {
             speak(responseText);
         } else {
-            // --- Complex Commands (Gemini AI) ---
             updateVoiceStatus("Thinking...");
-            getGeminiVoiceResponse(command);
+            await getGeminiVoiceResponse(command);
         }
     }
 
@@ -2849,78 +2914,36 @@
         }
     }
 
-    function handleVoiceEnd() {
-        // If the assistant is supposed to be ON, just restart the recognition.
-        // This creates the continuous loop.
-        if (isAssistantOn) {
-            try {
-                if (!synth.speaking) { // Don't restart if it's about to speak
-                    recognition.start();
-                }
-            } catch(e){
-                console.error("Error restarting recognition onend:", e);
-            }
-        }
-    }
-
     function handleVoiceError(event) {
         console.error("Speech Recognition Error:", event.error);
-        if (event.error === 'no-speech') {
-            // This is fine, it just means no sound was detected. Loop will restart on 'onend'.
-            isListeningForCommand = false; // Reset if it was waiting for a command
-            updateVoiceStatus("Didn't hear that. Waiting for 'Hey Squid'...");
-        } else if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
             speak("I need permission to use the microphone. Please enable it in your browser settings.");
             stopAssistant();
         } else {
-            isListeningForCommand = false; // Reset on other errors
+            isListeningForCommand = false;
+            setCornerGlow(false);
         }
     }
 
     function speak(text) {
-        if (!text) {
-            // If there's nothing to say, just ensure listening restarts.
-            handleVoiceEnd();
-            return;
-        }
-
-        // The key fix: Pause recognition while speaking
-        if (isAssistantOn) {
-            recognition.stop();
-        }
-
+        if (!text) return;
+        recognition.stop();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-IN';
         utterance.rate = 1;
         utterance.pitch = 1;
 
-        utterance.onstart = () => {
-            console.log("Speaking:", text);
-            updateVoiceStatus("Speaking...");
-        };
-        
+        utterance.onstart = () => updateVoiceStatus("Speaking...");
         utterance.onend = () => {
-            console.log("Finished speaking.");
-            // Reset to waiting for hotword state
-            isListeningForCommand = false; 
-            if (isAssistantOn) {
-                updateVoiceStatus("Waiting for 'Hey Squid'...");
-                // The 'onend' of recognition will handle the restart
-            }
+            updateVoiceStatus("Waiting for 'Hey Squid'...");
+            if (isAssistantOn) recognition.start();
         };
-
         synth.speak(utterance);
     }
     
     function updateVoiceStatus(text) {
-        if(voiceStatus) {
-            voiceStatus.textContent = text;
-        }
+        if(voiceStatus) voiceStatus.textContent = text;
     }
-
-    // =================================================================================
-    // --- END OF VOICE ASSISTANT REFACTORED LOGIC ---
-    // =================================================================================
 
     // =================================================================================
     // Leaderboard Functions
@@ -3076,7 +3099,7 @@
             [inputEl, sendBtn, messagesContainer] = [adviceChatInput, adviceSendButton, adviceChatMessages];
         } else if (chatType === 'hindi') {
             [inputEl, sendBtn, attachmentBtn, messagesContainer] = [hindiChatInput, hindiSendButton, hindiAttachmentButton, hindiChatMessages];
-            limitOverMessage = "दैनिक सीमा समाप्त। 2x सीमाओं के लिए वीआईपी में अपग्रेड करें!";
+            limitOverMessage = "दैनिक सीमा समाप्त। 2xसीमाओं के लिए वीआईपी में अपग्रेड करें!";
         }
         if (inputEl && sendBtn) {
             inputEl.disabled = true;
