@@ -366,48 +366,6 @@
             background: rgba(157, 77, 255, 0.2);
             box-shadow: 0 0 15px rgba(157, 77, 255, 0.2);
         }
-
-        /* NEW: Voice Assistant Styles */
-        #micButton.active {
-            color: var(--accent);
-            animation: micGlow 1.5s infinite alternate;
-        }
-        @keyframes micGlow {
-            from { box-shadow: 0 0 5px rgba(0, 224, 208, 0.2), 0 0 10px rgba(0, 224, 208, 0.2); }
-            to { box-shadow: 0 0 20px rgba(0, 224, 208, 0.6), 0 0 30px rgba(0, 224, 208, 0.4); }
-        }
-
-        #voiceStatus {
-            position: absolute;
-            bottom: -100px; /* Initially hidden */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 480px;
-            background: var(--glass-bg);
-            color: var(--text-light);
-            text-align: center;
-            padding: 15px;
-            border-radius: 20px 20px 0 0;
-            z-index: 1001;
-            font-size: 16px;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-bottom: none;
-            transition: bottom 0.4s ease-in-out;
-            pointer-events: none;
-        }
-
-        #voiceStatus.visible {
-            bottom: 67px; /* Position above bottom nav */
-        }
-        
-        @media (max-width: 500px) {
-            #voiceStatus.visible {
-                bottom: 60px;
-            }
-        }
         
         .content-wrapper {
             flex: 1;
@@ -415,7 +373,7 @@
             overflow: hidden;
         }
 
-        .main-content, .chat-container, .settings-container, .game-container, .info-container, .leaderboard-container {
+        .main-content, .chat-container, .settings-container, .game-container, .info-container, .leaderboard-container, .image-generator-container {
             position: absolute;
             top: 0;
             left: 0;
@@ -868,7 +826,7 @@
             font-weight: 500;
         }
         
-        .settings-container, .info-container {
+        .settings-container {
             display: none;
             flex-direction: column;
             gap: 20px;
@@ -1171,6 +1129,10 @@
         }
         
         .info-container {
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+            padding: 25px;
             height: 100%;
             overflow-y: auto;
         }
@@ -1438,7 +1400,7 @@
             box-shadow: 0 6px 15px rgba(255, 174, 66, 0.4);
         }
 
-        /* RESTORED: Ad Banner Styles */
+        /* Ad Banner Styles */
         #adBannerContainer {
             position: fixed;
             top: 0;
@@ -1589,6 +1551,121 @@
         #adContent .animated-entry { animation: adFadeInUp 0.8s ease-out forwards; opacity: 0; }
         @keyframes countdownTick { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
 
+        /* --- NEW: Image Generator Styles --- */
+        .image-generator-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .image-generator-content {
+            width: 100%;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+
+        #imagePromptInput {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            background: var(--input-bg);
+            color: var(--text-light);
+            margin-bottom: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        #imagePromptInput:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(157, 77, 255, 0.3);
+        }
+        
+        #generateImageButton, #downloadImageButton {
+            width: 100%;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #generateImageButton {
+            background: linear-gradient(135deg, var(--primary), #7a2fff);
+            color: white;
+            box-shadow: 0 5px 15px rgba(157, 77, 255, 0.3);
+        }
+        #generateImageButton:not(:disabled):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(157, 77, 255, 0.5);
+        }
+        #generateImageButton:disabled {
+            background: var(--secondary);
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        #downloadImageButton {
+            background: linear-gradient(135deg, var(--accent), #00c6ff);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 224, 208, 0.3);
+            display: none; /* Hidden by default */
+            margin-top: 15px;
+            text-decoration: none;
+            text-align: center;
+        }
+        #downloadImageButton:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 224, 208, 0.4);
+        }
+
+        #imageGenerationStatus, #imageLimitCounter {
+            margin-top: 15px;
+            color: #aaa;
+            min-height: 20px;
+            font-style: italic;
+        }
+
+        #imageDisplayWrapper {
+            margin-top: 20px;
+            width: 100%;
+            padding-top: 100%; /* 1:1 Aspect Ratio */
+            position: relative;
+            background: var(--input-bg);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #imageDisplayContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #imageDisplayContainer img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        /* --- End Image Generator Styles --- */
+
 
         /* Animations */
         @keyframes vipBgAnimate {
@@ -1630,8 +1707,7 @@
     </style>
 </head>
 <body>
-    
-    <!-- NOTE: The corner-glow divs were moved inside the app-container for correct positioning -->
+
     <div class="loader-container" id="loaderContainer">
         <div class="loader"></div>
         <p>Initializing Squid AI...</p>
@@ -1649,7 +1725,7 @@
                 <i class="fas fa-lock"></i>
                 <input type="password" class="login-input" id="passwordInput" placeholder="Password" autocomplete="current-password">
             </div>
-             <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
+            <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
             <div class="error-message" id="generalError"></div>
             <button class="login-button" id="authButton">Log In</button>
             <div class="form-footer">
@@ -1669,10 +1745,6 @@
                     <span>🔥</span>
                     <span id="streakCount">0</span>
                 </div>
-                <!-- UPDATED: Voice Assistant Mic Button -->
-                <button class="header-icon" id="micButton" title="Activate Voice Assistant">
-                    <i class="fas fa-microphone-alt"></i>
-                </button>
                 <button class="header-icon" id="settingsButton" title="Settings">
                     <i class="fas fa-cog"></i>
                 </button>
@@ -1687,6 +1759,7 @@
                     <button class="action-button" id="adviceChatButton"><span class="icon"><i class="fas fa-hand-holding-heart"></i></span> Get Advice</button>
                     <button class="action-button" id="chatButton"><span class="icon">💬</span> Start a new chat</button>
                     <button class="action-button" id="hindiChatButton"><span class="icon">🇮🇳</span> Chat in Hindi</button>
+                    <button class="action-button" id="imageGeneratorButton"><span class="icon"><i class="fas fa-image"></i></span> Generate Image</button> <!-- NEW BUTTON -->
                     <button class="action-button" id="iqButton"><span class="icon">🧠</span> IQ Calculator</button>
                     <button class="action-button" id="learnButton"><span class="icon">📚</span> Learn about AI</button>
                     <button class="action-button" id="codeButton"><span class="icon"><i class="fas fa-code"></i></span> Create Codes</button>
@@ -1730,6 +1803,27 @@
                     <button class="send-button" id="hindiSendButton"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
+
+            <!-- NEW: Image Generator Container -->
+            <div class="image-generator-container" id="imageGeneratorContainer">
+                <div class="image-generator-content">
+                    <h2 class="settings-header" style="margin-bottom: 20px;"><i class="fas fa-image"></i> AI Image Generator</h2>
+                    <p style="margin-bottom: 15px; color: #ccc;">Aapko kaisi image chahiye, yahan likhein:</p>
+                    <input type="text" id="imagePromptInput" placeholder="e.g., A cute squid wearing sunglasses">
+                    <button id="generateImageButton">Generate Image</button>
+                    <div id="imageGenerationStatus">Ready</div>
+                    <div id="imageLimitCounter"></div>
+                </div>
+                <div id="imageDisplayWrapper">
+                    <div id="imageDisplayContainer">
+                        <!-- Generated image yahan dikhegi -->
+                    </div>
+                </div>
+                <a id="downloadImageButton" href="#" download="squid-ai-image.png"><i class="fas fa-download"></i> Download Image</a>
+                <button class="back-button" id="backFromImageGenerator" style="margin-top: auto;">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </button>
+            </div>
             
             <!-- Settings Container -->
             <div class="settings-container" id="settingsContainer">
@@ -1741,11 +1835,6 @@
                 </div>
                 <div class="settings-item" id="profileBtn">
                     <label><i class="fas fa-user-circle"></i> Your Profile</label>
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-                <!-- NEW: Assistant Settings Button -->
-                <div class="settings-item" id="assistantSettingsBtn">
-                    <label><i class="fas fa-microphone-alt"></i> Voice Assistant</label>
                     <i class="fas fa-chevron-right"></i>
                 </div>
                 <div class="settings-item" id="howToUseBtn">
@@ -1787,9 +1876,9 @@
                     <h3>Unlock Premium Features!</h3>
                     <p>Upgrade to VIP for the ultimate Squid AI experience.</p>
                     <ul class="vip-feature-list">
-                        <li><i class="fas fa-microphone-alt"></i>Unlimited Voice Assistant use</li>
                         <li><i class="fas fa-trophy"></i>Show your name on global leaderboard</li>
                         <li><i class="fas fa-bolt"></i>2x limit increases on your language</li>
+                        <li><i class="fas fa-infinity"></i> Unlimited Image Generations</li>
                         <li><i class="fas fa-id-badge"></i>Get VIP badge on your profile</li>
                         <li><i class="fas fa-ad"></i>Ad-free experience</li>
                         <li><i class="fas fa-rocket"></i>Unlock multiple VIP features</li>
@@ -1805,41 +1894,6 @@
                 </button>
             </div>
             
-             <!-- NEW: Assistant Settings Page -->
-            <div class="info-container" id="assistantSettingsContainer">
-                <div class="info-header">
-                    <i class="fas fa-microphone-alt"></i>
-                    <h2>Voice Assistant</h2>
-                </div>
-                <div class="info-content">
-                    <h3>Daily Usage</h3>
-                    <div class="profile-field">
-                        <label>Commands Used Today</label>
-                        <div class="value" id="voiceCommandLimitDisplay">Loading...</div>
-                    </div>
-                    <button class="unlock-vip-button" id="assistantUpgradeBtn" style="display: none;">
-                        <i class="fas fa-crown"></i> Get Unlimited Commands
-                    </button>
-
-                    <h3 style="margin-top: 30px;">How to Use the Assistant</h3>
-                    <p>The voice assistant uses a simple **Tap-to-Talk** model.</p>
-                    <ol>
-                        <li>Tap the microphone icon <i class="fas fa-microphone-alt"></i> in the header to activate it.</li>
-                        <li>The icon will glow and the status will show "Listening...".</li>
-                        <li>Speak your command clearly. For example, *"What's the time?"* or *"Tell me about the IQ game"*.</li>
-                        <li>The assistant will process your request, speak the answer, and then **automatically turn off**.</li>
-                        <li>To ask another question, simply tap the microphone icon again.</li>
-                    </ol>
-                    <div class="highlight-box">
-                       <p><i class="fas fa-lightbulb"></i> Non-VIP users are limited to <strong>15 commands per day</strong>. Upgrade to VIP for unlimited access!</p>
-                    </div>
-                </div>
-                 <button class="back-button" id="backFromAssistant">
-                    <i class="fas fa-arrow-left"></i> Back to Settings
-                </button>
-            </div>
-
-
             <!-- Leaderboard Container -->
             <div class="leaderboard-container" id="leaderboardContainer">
                 <div class="info-header">
@@ -1894,9 +1948,6 @@
                 <div class="info-content">
                     <p>Welcome to Squid AI! Here's how to make the most of your experience:</p>
                     
-                    <h3>Voice Assistant 🎤</h3>
-                    <p>Tap the microphone icon in the header to activate the assistant. Speak your command, and it will answer and turn off automatically. Simple as that! Non-VIP users have a daily limit.</p>
-
                     <h3>Daily Streak 🔥</h3>
                     <p>Open the app every day to increase your daily streak. Reach a 30-day streak to redeem a <strong>FREE month of VIP membership!</strong></p>
 
@@ -1905,6 +1956,7 @@
                         <li><strong>Get Advice</strong>: Tap this for a friendly, supportive chat in Hinglish.</li>
                         <li><strong>New Chat</strong>: Tap the "New Chat" button to start a standard conversation.</li>
                         <li><strong>Hindi Chat</strong>: Select "Chat in Hindi" for conversations in Hindi.</li>
+                        <li><strong>Generate Image</strong>: Create unique images from text prompts. You get <strong>10 free generations per day</strong>. VIPs get unlimited generations.</li>
                         <li><strong>IQ Test</strong>: Try our fun IQ calculator game under "IQ Calculator".</li>
                     </ul>
                     
@@ -1923,9 +1975,10 @@
                     <p>To ensure fair usage for everyone:</p>
                     <ul>
                         <li>"Get Advice" and "Chat in Hindi" are limited to 50 messages per day.</li>
-                        <li>Voice Assistant is limited to 15 commands per day.</li>
-                        <li><strong>VIP Members get 2x message limits and unlimited voice commands!</strong></li>
+                        <li>"Generate Image" is limited to 10 images per day.</li>
+                        <li><strong>VIP Members get 100 messages/day and UNLIMITED image generations!</strong></li>
                         <li>Other chats have no daily limits.</li>
+                        <li>IQ game can be played unlimited times.</li>
                     </ul>
                     
                     <button class="back-button" id="backFromHowToUse">
@@ -1949,8 +2002,8 @@
                     <ul>
                         <li>Email address and display name for authentication purposes</li>
                         <li>Chat history stored locally on your device</li>
-                        <li>Daily message usage counts for limited chats, stored locally</li>
-                        <li>Your daily streak count, voice assistant usage, and VIP status, stored in Firebase to sync across devices.</li>
+                        <li>Daily message and image generation usage counts for limited features, stored locally</li>
+                        <li>Your daily streak count and VIP status, stored in Firebase to sync across devices.</li>
                     </ul>
                     
                     <h3>Data Usage</h3>
@@ -1959,7 +2012,7 @@
                         <li>Provide and improve our services</li>
                         <li>Personalize your experience</li>
                         <li>Maintain security and prevent abuse</li>
-                        <li>Manage VIP features like the leaderboard and daily limits.</li>
+                        <li>Manage VIP features like the leaderboard and daily streak.</li>
                     </ul>
                     
                     <div class="highlight-box">
@@ -1970,7 +2023,7 @@
                     <p>All your data is stored securely:</p>
                     <ul>
                         <li>Authentication handled by Firebase</li>
-                        <li>User-specific data (streak, VIP status, limits) stored in Firebase Realtime Database</li>
+                        <li>User-specific data (streak, VIP status) stored in Firebase Realtime Database</li>
                         <li>Chat history and usage limits stored in your browser's local storage</li>
                         <li>Uploaded images are processed temporarily and never stored</li>
                     </ul>
@@ -2066,7 +2119,7 @@
         </div>
     </div>
     
-    <!-- RESTORED: Ad Banner Container -->
+    <!-- Ad Banner Container -->
     <div id="adBannerContainer">
       <div id="adContainer">
         <canvas id="backgroundCanvas"></canvas>
@@ -2091,10 +2144,6 @@
         <div id="adCountdown" class="countdown">8</div>
       </div>
     </div>
-
-    <!-- UPDATED: Voice Assistant Status Bar -->
-    <div id="voiceStatus"></div>
-
 <script>
   let touchStartY = 0;
 
@@ -2119,34 +2168,18 @@
     const COHERE_API_KEY = "bpSstiCTmvYvzPE396HFKbZABWTA8JfBpkHWMujA";
     const COHERE_API_ENDPOINT = "https://api.cohere.ai/v1/chat";
     
-    // Key for Hinglish Advice Chat
     const GEMINI_API_KEY = "AIzaSyAPACd3ci-fr96Iswt2HqoxStZm0mMCmtc"; 
-    
-    // NEW: Key for Voice Assistant General Conversation
-    const GEMINI_API_KEY_VOICE = "AIzaSyC8gI51M-aVNySn7XaAvyJddNSwjLjTemA";
-
     const GEMINI_MODEL = "gemini-1.5-flash-latest";
-    const GEMINI_API_ENDPOINT_VOICE = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY_VOICE}`;
-    const GEMINI_API_ENDPOINT_ADVICE = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-    const GEMINI_API_ENDPOINT_HINDI = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+    const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
     
+    // NEW: Hugging Face API Configuration for Image Generation
+    const HF_API_TOKEN = "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";
+    const HF_API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0";
+
     const DAILY_MESSAGE_LIMIT_NORMAL = 50; 
     const DAILY_MESSAGE_LIMIT_VIP = 100;
+    const DAILY_IMAGE_LIMIT_NORMAL = 10; // New limit for images
     const STREAK_REDEEM_GOAL = 30;
-
-    const DAILY_VOICE_LIMIT = 15;
-
-    // NEW: Knowledge base for the app-aware voice assistant
-    const APP_KNOWLEDGE_BASE = `You are Squid AI, a friendly and helpful voice assistant. Your primary goal is to assist the user.
-        You have information about the application you live in. Here are its features:
-        - Get Advice: A special chat mode where you act as a supportive friend, communicating in Hinglish.
-        - Chat in Hindi: A chat mode for conversations purely in Hindi, which also supports image analysis. Users can upload a photo and ask questions about it.
-        - IQ Calculator: A fun emoji-based game to test the user's reaction time and calculate a fun IQ score.
-        - Standard Chat: A general-purpose chat powered by Cohere for various questions.
-        - Daily Streak: Users increase their streak by opening the app daily. A 30-day streak can be redeemed for one month of free VIP.
-        - VIP Membership: VIP members get benefits like unlimited voice assistant commands, double the message limits in Advice and Hindi chats, an ad-free experience, and a VIP badge on their profile and the global leaderboard.
-        - You should answer questions about these features clearly and concisely. For general knowledge questions, answer them as a helpful AI. Always maintain a friendly and approachable tone.`;
-
 
     const firebaseConfig = {
       apiKey: "AIzaSyCnS5bEqwCJHSwUkDbA3gWBRvL3o5OIrrw",
@@ -2268,22 +2301,17 @@
     const redeemStreakCount = document.getElementById('redeemStreakCount');
     const redeemStreakButton = document.getElementById('redeemStreakButton');
 
-    // --- VOICE ASSISTANT ELEMENTS ---
-    const micButton = document.getElementById('micButton');
-    const voiceStatus = document.getElementById('voiceStatus');
-    const assistantSettingsBtn = document.getElementById('assistantSettingsBtn');
-    const assistantSettingsContainer = document.getElementById('assistantSettingsContainer');
-    const voiceCommandLimitDisplay = document.getElementById('voiceCommandLimitDisplay');
-    const assistantUpgradeBtn = document.getElementById('assistantUpgradeBtn');
-    const backFromAssistant = document.getElementById('backFromAssistant');
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition;
-    let synth = window.speechSynthesis;
-    
-    // --- VOICE ASSISTANT STATE ---
-    let isAssistantOn = false;
-    let isSpeaking = false;
-    let userVoiceLimit = { count: DAILY_VOICE_LIMIT, date: '' };
+    // NEW: Image Generator elements
+    const imageGeneratorButton = document.getElementById('imageGeneratorButton');
+    const imageGeneratorContainer = document.getElementById('imageGeneratorContainer');
+    const imagePromptInput = document.getElementById('imagePromptInput');
+    const generateImageButton = document.getElementById('generateImageButton');
+    const imageGenerationStatus = document.getElementById('imageGenerationStatus');
+    const imageLimitCounter = document.getElementById('imageLimitCounter');
+    const imageDisplayContainer = document.getElementById('imageDisplayContainer');
+    const downloadImageButton = document.getElementById('downloadImageButton');
+    const backFromImageGenerator = document.getElementById('backFromImageGenerator');
+
 
     // =================================================================================
     // App State
@@ -2299,10 +2327,13 @@
     let isVipUser = false;
     let userStreak = 0;
     
-    // Ad Banner State
     let adInterval = null;
     let isAdShowing = false;
     let adCountdownTimer = null;
+
+    // NEW: Image Generator State
+    let isGeneratingImage = false;
+    let statusInterval = null;
 
     // IQ Game State
     const rounds = [
@@ -2334,10 +2365,9 @@
         }
     });
 
-    async function initializeAppState() {
+    function initializeAppState() {
         showApp();
-        await fetchAndProcessUserData();
-        initializeVoiceAssistant(); 
+        fetchAndProcessUserData();
     }
     
     function setupEventListeners() {
@@ -2392,16 +2422,15 @@
         
         adUnlockButton.addEventListener('click', () => {
             hideVipAd();
-            showInfoPage('vipMembership');
+            showInfoPage('vipMembership'); // Navigate directly to VIP page
         });
         
         redeemStreakButton.addEventListener('click', redeemVipWithStreak);
-        
-        // New Voice Assistant Listeners
-        micButton.addEventListener('click', toggleAssistant);
-        assistantSettingsBtn.addEventListener('click', () => showInfoPage('assistantSettings'));
-        backFromAssistant.addEventListener('click', () => navigateTo('settings'));
-        assistantUpgradeBtn.addEventListener('click', () => showInfoPage('vipMembership'));
+
+        // NEW: Image Generator Event Listeners
+        imageGeneratorButton.addEventListener('click', () => navigateTo('imageGenerator'));
+        generateImageButton.addEventListener('click', handleGenerateImage);
+        backFromImageGenerator.addEventListener('click', () => navigateTo('home'));
     }
     
     function showLogin() {
@@ -2411,13 +2440,9 @@
         emailInput.value = '';
         passwordInput.value = '';
         clearErrors();
-
-        if (isAssistantOn) {
-            stopAssistant();
-        }
         
         if (adInterval) clearInterval(adInterval);
-        hideVipAd(); 
+        hideVipAd();
         
         isVipUser = false;
         userStreak = 0;
@@ -2504,7 +2529,6 @@
 
             processVipStatus(userData);
             await processUserStreak(userData);
-            await processVoiceLimit(userData); 
 
             updateVipRelatedUI();
             updateStreakUI();
@@ -2553,22 +2577,6 @@
             await db.ref(`users/${currentUser.uid}`).update({ streak: currentStreak, lastLoginDate: todayStr });
         }
         userStreak = currentStreak;
-    }
-
-    async function processVoiceLimit(userData) {
-        if (isVipUser) {
-            userVoiceLimit = { count: 999, date: '' }; 
-            return;
-        }
-        const todayStr = new Date().toISOString().split('T')[0];
-        const voiceData = userData.voiceAssistant || {};
-        
-        if (voiceData.date !== todayStr) {
-            userVoiceLimit = { count: DAILY_VOICE_LIMIT, date: todayStr };
-            await db.ref(`users/${currentUser.uid}/voiceAssistant`).set(userVoiceLimit);
-        } else {
-            userVoiceLimit = { count: voiceData.count, date: todayStr };
-        }
     }
     
     // =================================================================================
@@ -2644,19 +2652,11 @@
             saveActiveChat();
         }
         
-        mainContent.style.display = 'none';
-        chatContainer.style.display = 'none';
-        hindiChatContainer.style.display = 'none';
-        adviceChatContainer.style.display = 'none';
-        settingsContainer.style.display = 'none';
-        gameContainer.style.display = 'none';
-        leaderboardContainer.style.display = 'none';
-
-        document.querySelectorAll('.info-container').forEach(c => c.style.display = 'none');
+        const allContainers = document.querySelectorAll('.main-content, .chat-container, .settings-container, .game-container, .info-container, .leaderboard-container, .image-generator-container');
+        allContainers.forEach(c => c.style.display = 'none');
         
-        homeNav.classList.remove('active');
-        newChatNav.classList.remove('active');
-        leaderboardNav.classList.remove('active');
+        const allNavItems = document.querySelectorAll('.nav-item');
+        allNavItems.forEach(item => item.classList.remove('active'));
 
         if (section === 'home') {
             appTitle.textContent = "Squid AI";
@@ -2693,218 +2693,55 @@
             leaderboardContainer.style.display = 'flex';
             leaderboardNav.classList.add('active');
             fetchAndRenderLeaderboard();
+        } else if (section === 'vipMembership') {
+            showInfoPage('vipMembership');
+        } else if (section === 'imageGenerator') { // NEW NAVIGATION
+            appTitle.textContent = "Image Generator";
+            imageGeneratorContainer.style.display = 'flex';
+            homeNav.classList.add('active');
+            updateImageLimitUI();
+            // Reset UI elements when navigating to the page
+            imageDisplayContainer.innerHTML = '';
+            downloadImageButton.style.display = 'none';
+            imageGenerationStatus.textContent = 'Ready';
         }
     }
     
     function showInfoPage(page) {
-        settingsContainer.style.display = 'none';
-        document.querySelectorAll('.info-container').forEach(c => c.style.display = 'none');
+        const allInfoContainers = document.querySelectorAll('.settings-container, .howToUseContainer, .privacyPolicyContainer, .securityContainer, .profileContainer, .vipMembershipContainer');
+        allInfoContainers.forEach(c => c.style.display = 'none');
         
-        if (page === 'howToUse') {
-            howToUseContainer.style.display = 'flex';
-            appTitle.textContent = "How to Use";
-        } else if (page === 'privacyPolicy') {
-            privacyPolicyContainer.style.display = 'flex';
-            appTitle.textContent = "Privacy Policy";
-        } else if (page === 'security') {
-            securityContainer.style.display = 'flex';
-            appTitle.textContent = "Security";
-        } else if (page === 'profile') {
-            profileContainer.style.display = 'flex';
-            appTitle.textContent = "Your Profile";
-            loadProfileData();
-        } else if (page === 'vipMembership') {
-            vipMembershipContainer.style.display = 'flex';
-            appTitle.textContent = "VIP Membership";
-            updateStreakUI();
-        } else if (page === 'assistantSettings') {
-            assistantSettingsContainer.style.display = 'flex';
-            appTitle.textContent = "Voice Assistant";
-            renderAssistantSettingsPage();
+        let targetContainer, title;
+        switch(page) {
+            case 'howToUse':
+                targetContainer = howToUseContainer;
+                title = "How to Use";
+                break;
+            case 'privacyPolicy':
+                targetContainer = privacyPolicyContainer;
+                title = "Privacy Policy";
+                break;
+            case 'security':
+                targetContainer = securityContainer;
+                title = "Security";
+                break;
+            case 'profile':
+                targetContainer = profileContainer;
+                title = "Your Profile";
+                loadProfileData();
+                break;
+            case 'vipMembership':
+                targetContainer = vipMembershipContainer;
+                title = "VIP Membership";
+                updateStreakUI();
+                break;
+        }
+
+        if (targetContainer) {
+            targetContainer.style.display = 'flex';
+            appTitle.textContent = title;
         }
     }
-
-    function renderAssistantSettingsPage() {
-        if(isVipUser) {
-            voiceCommandLimitDisplay.textContent = "Unlimited (VIP Member)";
-            assistantUpgradeBtn.style.display = 'none';
-        } else {
-            const usedCommands = DAILY_VOICE_LIMIT - userVoiceLimit.count;
-            voiceCommandLimitDisplay.textContent = `${usedCommands} / ${DAILY_VOICE_LIMIT} used`;
-            assistantUpgradeBtn.style.display = userVoiceLimit.count <= 0 ? 'block' : 'none';
-        }
-    }
-
-    // =================================================================================
-    // VOICE ASSISTANT - TAP-TO-TALK LOGIC
-    // =================================================================================
-
-    function initializeVoiceAssistant() {
-        if (!SpeechRecognition) {
-            micButton.style.display = 'none';
-            return;
-        }
-
-        recognition = new SpeechRecognition();
-        recognition.continuous = false; 
-        recognition.lang = 'en-IN';
-        recognition.interimResults = false;
-
-        recognition.onresult = handleVoiceResult;
-        recognition.onend = () => {
-             // If the assistant was on but no result was processed (e.g., user said nothing), turn it off.
-             if (isAssistantOn) {
-                 stopAssistant();
-             }
-        };
-        recognition.onerror = handleVoiceError;
-    }
-    
-    async function toggleAssistant() {
-        if (isAssistantOn) {
-            stopAssistant();
-        } else {
-            // Check limits before starting
-            if (!isVipUser) {
-                await processVoiceLimit((await db.ref(`users/${currentUser.uid}`).once('value')).val() || {});
-                if (userVoiceLimit.count <= 0) {
-                    showInfoPage('assistantSettings');
-                    alert("You've reached your daily voice command limit. Upgrade to VIP for unlimited access!");
-                    return;
-                }
-            }
-            startAssistant();
-        }
-    }
-
-    function startAssistant() {
-        isAssistantOn = true;
-        micButton.classList.add('active');
-        voiceStatus.classList.add('visible');
-        updateVoiceStatus("Listening...");
-        try {
-            recognition.start();
-        } catch (e) {
-            console.error("Recognition.start() error:", e);
-            stopAssistant(); // Turn off if it fails to start
-        }
-    }
-
-    function stopAssistant() {
-        isAssistantOn = false;
-        isSpeaking = false;
-        micButton.classList.remove('active');
-        voiceStatus.classList.remove('visible');
-        try {
-             recognition.stop();
-        } catch(e) {
-            // Can ignore errors here, e.g., if it was already stopped.
-        }
-        synth.cancel();
-    }
-
-    function handleVoiceResult(event) {
-        const transcript = event.results[0][0].transcript.trim();
-        if (!transcript) { // If result is empty, just stop.
-            stopAssistant();
-            return;
-        }
-        console.log("Heard:", transcript);
-        handleCommand(transcript);
-    }
-
-    async function handleCommand(command) {
-        updateVoiceStatus(`Processing: "${command}"`);
-
-        // Decrement limit for non-VIPs
-        if (!isVipUser) {
-            userVoiceLimit.count--;
-            await db.ref(`users/${currentUser.uid}/voiceAssistant`).set(userVoiceLimit);
-            renderAssistantSettingsPage(); // Update UI
-        }
-
-        // --- Local Commands (Instant) ---
-        let responseText = '';
-        const commandLower = command.toLowerCase();
-        if (commandLower.includes('time')) {
-            responseText = `The current time is ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        } else if (commandLower.includes('date')) {
-            responseText = `Today is ${new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}`;
-        } else if (commandLower.includes('logout') || commandLower.includes('log out')) {
-            responseText = 'Okay, logging you out. Goodbye!';
-            speak(responseText); // This will call stopAssistant on its own.
-            setTimeout(() => handleLogout(), 2000);
-            return;
-        }
-        
-        if (responseText) {
-            speak(responseText);
-        } else {
-            // --- AI Commands (with App Knowledge) ---
-            updateVoiceStatus("Thinking...");
-            await getGeminiVoiceResponse(command);
-        }
-    }
-
-    async function getGeminiVoiceResponse(prompt) {
-        try {
-            const systemInstruction = { parts: [{ text: APP_KNOWLEDGE_BASE }] };
-            const response = await fetch(GEMINI_API_ENDPOINT_VOICE, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    system_instruction: systemInstruction,
-                    generationConfig: { temperature: 0.7, topK: 1, topP: 1, maxOutputTokens: 1024 },
-                })
-            });
-            if (!response.ok) throw new Error(`API Error: ${response.status}`);
-            const data = await response.json();
-            const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            speak(aiReply || "I'm sorry, I couldn't think of a response to that.");
-        } catch (error) {
-            console.error("Gemini Voice API Error:", error);
-            speak("I'm having some trouble connecting to my brain right now. Please try again later.");
-        }
-    }
-    
-    function speak(text) {
-        if (!text) {
-            stopAssistant();
-            return;
-        }
-        isSpeaking = true;
-        updateVoiceStatus("Speaking...");
-        
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-IN';
-        utterance.rate = 1;
-        utterance.pitch = 1;
-        
-        // The key part: Stop the assistant after it finishes speaking
-        utterance.onend = () => {
-            stopAssistant();
-        };
-        synth.speak(utterance);
-    }
-    
-    function handleVoiceError(event) {
-        console.error("Speech Recognition Error:", event.error, event.message);
-        if (event.error === 'no-speech') {
-             updateVoiceStatus("Didn't hear that. Please tap and try again.");
-        } else if (event.error === 'not-allowed') {
-            updateVoiceStatus("Microphone permission denied.");
-        } else {
-            updateVoiceStatus("An error occurred. Please try again.");
-        }
-        // Always stop the assistant on error for this model.
-        setTimeout(stopAssistant, 2000);
-    }
-    
-    function updateVoiceStatus(text) {
-        if(voiceStatus) voiceStatus.textContent = text;
-    }
-
 
     // =================================================================================
     // Leaderboard Functions
@@ -3013,40 +2850,43 @@
     }
 
     // =================================================================================
-    // Daily Limit Logic (for Chat)
+    // Generic Daily Limit Logic
     // =================================================================================
-    function getLimitData(chatType) {
+    function getLimitData(type, dailyLimit) {
         if (!currentUser) return { count: 0, date: null };
         const todayStr = new Date().toISOString().split('T')[0];
-        const key = `limit_${chatType}_${currentUser.uid}`;
+        const key = `limit_${type}_${currentUser.uid}`;
         const data = JSON.parse(localStorage.getItem(key) || '{}');
-        const limit = isVipUser ? DAILY_MESSAGE_LIMIT_VIP : DAILY_MESSAGE_LIMIT_NORMAL;
-
+        
         if (data.date !== todayStr) {
-            return { count: limit, date: todayStr };
+            return { count: dailyLimit, date: todayStr };
         }
         return data;
     }
 
-    function saveLimitData(chatType, data) {
+    function saveLimitData(type, data) {
         if (!currentUser) return;
-        const key = `limit_${chatType}_${currentUser.uid}`;
+        const key = `limit_${type}_${currentUser.uid}`;
         localStorage.setItem(key, JSON.stringify(data));
     }
 
+    // =================================================================================
+    // Chat Daily Limit Logic
+    // =================================================================================
     function useOneMessage(chatType) {
-        let data = getLimitData(chatType);
+        const limit = isVipUser ? DAILY_MESSAGE_LIMIT_VIP : DAILY_MESSAGE_LIMIT_NORMAL;
+        let data = getLimitData(`message_${chatType}`, limit);
         if (data.count > 0) {
             data.count--;
-            saveLimitData(chatType, data);
+            saveLimitData(`message_${chatType}`, data);
             return true;
         }
         return false;
     }
 
     function updateLimitUI(chatType) {
-        const data = getLimitData(chatType);
         const limit = isVipUser ? DAILY_MESSAGE_LIMIT_VIP : DAILY_MESSAGE_LIMIT_NORMAL;
+        const data = getLimitData(`message_${chatType}`, limit);
         const counterEl = (chatType === 'advice') ? adviceLimitCounter : hindiLimitCounter;
         if (counterEl) {
             counterEl.textContent = `Limit: ${data.count}/${limit}`;
@@ -3060,7 +2900,7 @@
             [inputEl, sendBtn, messagesContainer] = [adviceChatInput, adviceSendButton, adviceChatMessages];
         } else if (chatType === 'hindi') {
             [inputEl, sendBtn, attachmentBtn, messagesContainer] = [hindiChatInput, hindiSendButton, hindiAttachmentButton, hindiChatMessages];
-            limitOverMessage = "दैनिक सीमा समाप्त। 2xसीमाओं के लिए वीआईपी में अपग्रेड करें!";
+            limitOverMessage = "दैनिक सीमा समाप्त। 2x सीमाओं के लिए वीआईपी में अपग्रेड करें!";
         }
         if (inputEl && sendBtn) {
             inputEl.disabled = true;
@@ -3152,7 +2992,7 @@
         currentAdviceChat = [];
         addAdviceMessage("Hey dost! Main tumhara friend Squid AI hoon. Kya chal raha hai? You can tell me anything, I'm here for you.", 'ai');
         updateLimitUI('advice');
-        const limitData = getLimitData('advice');
+        const limitData = getLimitData('message_advice', DAILY_MESSAGE_LIMIT_NORMAL);
         if (limitData.count <= 0) {
             handleLimitReached('advice');
         } else {
@@ -3162,7 +3002,7 @@
     }
 
     async function sendAdviceMessage() {
-        const limitData = getLimitData('advice');
+        const limitData = getLimitData('message_advice', isVipUser ? DAILY_MESSAGE_LIMIT_VIP : DAILY_MESSAGE_LIMIT_NORMAL);
         if (limitData.count <= 0) {
             handleLimitReached('advice'); return;
         }
@@ -3180,7 +3020,7 @@
 
     function handleSuggestionClick(e) {
         if (e.target.classList.contains('suggestion-chip')) {
-            const limitData = getLimitData('advice');
+            const limitData = getLimitData('message_advice', isVipUser ? DAILY_MESSAGE_LIMIT_VIP : DAILY_MESSAGE_LIMIT_NORMAL);
             if (limitData.count <= 0) {
                 handleLimitReached('advice'); return;
             }
@@ -3206,7 +3046,7 @@
                 role: msg.sender === 'user' ? "user" : "model",
                 parts: [{ text: msg.text }]
             }));
-            const response = await fetch(GEMINI_API_ENDPOINT_ADVICE, {
+            const response = await fetch(GEMINI_API_ENDPOINT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -3252,7 +3092,7 @@
         clearHindiPreview();
         addHindiMessage("नमस्ते! मैं स्क्विड एआई हूँ। आप कोई तस्वीर भेज सकते हैं या मुझसे कुछ पूछ सकते हैं।", 'ai');
         updateLimitUI('hindi');
-        const limitData = getLimitData('hindi');
+        const limitData = getLimitData('message_hindi', isVipUser ? DAILY_MESSAGE_LIMIT_VIP : DAILY_MESSAGE_LIMIT_NORMAL);
         if (limitData.count <= 0) {
             handleLimitReached('hindi');
         } else {
@@ -3263,7 +3103,7 @@
     }
 
     async function sendHindiMessage() {
-        const limitData = getLimitData('hindi');
+        const limitData = getLimitData('message_hindi', isVipUser ? DAILY_MESSAGE_LIMIT_VIP : DAILY_MESSAGE_LIMIT_NORMAL);
         if (limitData.count <= 0) {
             handleLimitReached('hindi'); return;
         }
@@ -3315,7 +3155,7 @@
             const parts = [];
             if (prompt) parts.push({ text: prompt });
             if (file) parts.push({ inline_data: { mime_type: file.mimeType, data: file.base64.split(',')[1] } });
-            const response = await fetch(GEMINI_API_ENDPOINT_HINDI, {
+            const response = await fetch(GEMINI_API_ENDPOINT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: parts }] })
@@ -3377,6 +3217,114 @@
         if (typingIndicator) typingIndicator.remove();
     }
     
+    // =================================================================================
+    // NEW: Image Generator Functions
+    // =================================================================================
+    function updateImageLimitUI() {
+        if (isVipUser) {
+            imageLimitCounter.innerHTML = `<i class="fas fa-infinity vip-badge" style="font-size: 1em;"></i> Unlimited Generations`;
+            handleImageLimitReached(false); // Make sure button is enabled for VIP
+        } else {
+            const limitData = getLimitData('image', DAILY_IMAGE_LIMIT_NORMAL);
+            imageLimitCounter.textContent = `Daily Limit: ${limitData.count}/${DAILY_IMAGE_LIMIT_NORMAL}`;
+            if (limitData.count <= 0) {
+                handleImageLimitReached(true);
+            } else {
+                handleImageLimitReached(false);
+            }
+        }
+    }
+
+    function handleImageLimitReached(isLimited) {
+        if (isLimited) {
+            generateImageButton.disabled = true;
+            imageGenerationStatus.textContent = "Daily limit reached. Upgrade to VIP for unlimited generations!";
+        } else {
+            generateImageButton.disabled = false;
+            imageGenerationStatus.textContent = "Ready";
+        }
+    }
+
+    async function handleGenerateImage() {
+        const prompt = imagePromptInput.value.trim();
+        if (!prompt) {
+            alert("Please enter a prompt.");
+            return;
+        }
+        
+        if (!isVipUser) {
+            const limitData = getLimitData('image', DAILY_IMAGE_LIMIT_NORMAL);
+            if (limitData.count <= 0) {
+                handleImageLimitReached(true);
+                return;
+            }
+            limitData.count--;
+            saveLimitData('image', limitData);
+            updateImageLimitUI();
+        }
+
+        isGeneratingImage = true;
+        generateImageButton.disabled = true;
+        imageDisplayContainer.innerHTML = '';
+        downloadImageButton.style.display = 'none';
+
+        const statusMessages = ["Adding pixels...", "Load on server...", "Few seconds...", "Almost done..."];
+        let statusIndex = 0;
+        imageGenerationStatus.textContent = statusMessages[statusIndex];
+        statusInterval = setInterval(() => {
+            statusIndex = (statusIndex + 1) % statusMessages.length;
+            imageGenerationStatus.textContent = statusMessages[statusIndex];
+        }, 2000);
+
+        try {
+            const imageBlob = await queryImageAPI({ "inputs": prompt });
+            const imageUrl = URL.createObjectURL(imageBlob);
+            
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.onload = () => {
+                imageGenerationStatus.textContent = "Done!";
+                downloadImageButton.href = imageUrl;
+                downloadImageButton.style.display = 'block';
+            };
+            
+            imageDisplayContainer.appendChild(img);
+        } catch (error) {
+            console.error("Image Generation Error:", error);
+            imageGenerationStatus.textContent = `Error: ${error.message}`;
+            alert(`Ek error aa gaya: ${error.message}`);
+        } finally {
+            clearInterval(statusInterval);
+            isGeneratingImage = false;
+            // Re-enable button ONLY if limit is not reached (for non-VIPs)
+            if (isVipUser || getLimitData('image', DAILY_IMAGE_LIMIT_NORMAL).count > 0) {
+                generateImageButton.disabled = false;
+            }
+        }
+    }
+    
+    async function queryImageAPI(data) {
+        const response = await fetch(HF_API_URL, {
+            headers: {
+                "Authorization": `Bearer ${HF_API_TOKEN}`,
+                "Content-Type": "application/json"
+            },
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            if (error.error && error.estimated_time) {
+                throw new Error(`Model abhi load ho raha hai. Please ${Math.round(error.estimated_time)} seconds baad try karein.`);
+            }
+            throw new Error(`API se error aaya: ${response.statusText}`);
+        }
+        
+        const result = await response.blob();
+        return result;
+    }
+
     // =================================================================================
     // IQ Game Functions
     // =================================================================================
@@ -3550,7 +3498,7 @@
     // =================================================================================
     function initializeAdLogic() {
         const canvas = backgroundCanvas;
-        if(!canvas || !canvas.getContext) return; // Don't run if canvas not found or supported
+        if(!canvas || !canvas.getContext) return; 
         const ctx = canvas.getContext('2d');
         let particles = [];
         function resizeCanvas() {
@@ -3568,7 +3516,7 @@
             for (let i = 0; i < numParticles; i++) { particles.push(new Particle()); }
         }
         function animate() {
-            if (!isAdShowing) return; // Stop animation if ad is hidden
+            if (!isAdShowing) return;
             requestAnimationFrame(animate);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
@@ -3585,7 +3533,7 @@
 
     function showVipAd() {
         if (isVipUser || isAdShowing || gameContainer.style.display === 'flex' || !currentUser) {
-            return; // Don't show ad
+            return; 
         }
         isAdShowing = true;
         adBannerContainer.style.display = 'flex';
