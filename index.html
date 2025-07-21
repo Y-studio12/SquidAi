@@ -377,32 +377,6 @@
             to { box-shadow: 0 0 20px rgba(0, 224, 208, 0.6), 0 0 30px rgba(0, 224, 208, 0.4); }
         }
 
-        /* NEW: Voice listening corner effect */
-        .corner-glow {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle, var(--primary), transparent 70%);
-            filter: blur(50px);
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            pointer-events: none;
-            z-index: 999;
-        }
-        .corner-glow.active {
-            opacity: 0.8;
-            animation: cornerPulse 2s infinite alternate;
-        }
-        #corner-tl { top: -50px; left: -50px; }
-        #corner-tr { top: -50px; right: -50px; background: radial-gradient(circle, var(--accent), transparent 70%); }
-        #corner-bl { bottom: -50px; left: -50px; background: radial-gradient(circle, var(--accent), transparent 70%); }
-        #corner-br { bottom: -50px; right: -50px; }
-
-        @keyframes cornerPulse {
-            from { transform: scale(0.8); }
-            to { transform: scale(1.2); }
-        }
-
         #voiceStatus {
             position: absolute;
             bottom: -100px; /* Initially hidden */
@@ -1656,7 +1630,8 @@
     </style>
 </head>
 <body>
-
+    
+    <!-- NOTE: The corner-glow divs were moved inside the app-container for correct positioning -->
     <div class="loader-container" id="loaderContainer">
         <div class="loader"></div>
         <p>Initializing Squid AI...</p>
@@ -1684,12 +1659,6 @@
     </div>
 
     <div class="app-container" id="appContainer">
-        <!-- NEW: Corner glow effects for voice assistant -->
-        <div class="corner-glow" id="corner-tl"></div>
-        <div class="corner-glow" id="corner-tr"></div>
-        <div class="corner-glow" id="corner-bl"></div>
-        <div class="corner-glow" id="corner-br"></div>
-        
         <div class="app-header">
             <div class="logo-container">
                 <div class="app-logo">🦑</div>
@@ -1853,12 +1822,13 @@
                     </button>
 
                     <h3 style="margin-top: 30px;">How to Use the Assistant</h3>
-                    <p>Activate the assistant by tapping the <i class="fas fa-microphone-alt"></i> icon in the header.</p>
+                    <p>The voice assistant uses a simple **Tap-to-Talk** model.</p>
                     <ol>
-                        <li>Say the hotword <strong>"Hey Squid"</strong> to get its attention. The screen corners will glow.</li>
-                        <li>Ask your question clearly. For example, <em>"Hey Squid, what's the weather like?"</em></li>
-                        <li>The assistant will answer and then wait for you to say "Hey Squid" again for your next command.</li>
-                        <li>If you say the hotword but don't ask a question within 8 seconds, it will reset.</li>
+                        <li>Tap the microphone icon <i class="fas fa-microphone-alt"></i> in the header to activate it.</li>
+                        <li>The icon will glow and the status will show "Listening...".</li>
+                        <li>Speak your command clearly. For example, *"What's the time?"* or *"Tell me about the IQ game"*.</li>
+                        <li>The assistant will process your request, speak the answer, and then **automatically turn off**.</li>
+                        <li>To ask another question, simply tap the microphone icon again.</li>
                     </ol>
                     <div class="highlight-box">
                        <p><i class="fas fa-lightbulb"></i> Non-VIP users are limited to <strong>15 commands per day</strong>. Upgrade to VIP for unlimited access!</p>
@@ -1925,7 +1895,7 @@
                     <p>Welcome to Squid AI! Here's how to make the most of your experience:</p>
                     
                     <h3>Voice Assistant 🎤</h3>
-                    <p>Tap the microphone icon in the header to activate. Once active, say <strong>"Hey Squid"</strong> followed by your command. For example: <em>"Hey Squid, what's the time?"</em> or <em>"Hey Squid, tell me a joke."</em> Non-VIP users have a daily limit. Check the Voice Assistant settings for more details.</p>
+                    <p>Tap the microphone icon in the header to activate the assistant. Speak your command, and it will answer and turn off automatically. Simple as that! Non-VIP users have a daily limit.</p>
 
                     <h3>Daily Streak 🔥</h3>
                     <p>Open the app every day to increase your daily streak. Reach a 30-day streak to redeem a <strong>FREE month of VIP membership!</strong></p>
@@ -2164,8 +2134,18 @@
     const DAILY_MESSAGE_LIMIT_VIP = 100;
     const STREAK_REDEEM_GOAL = 30;
 
-    // UPDATED: Voice Assistant daily limit for non-VIPs
     const DAILY_VOICE_LIMIT = 15;
+
+    // NEW: Knowledge base for the app-aware voice assistant
+    const APP_KNOWLEDGE_BASE = `You are Squid AI, a friendly and helpful voice assistant. Your primary goal is to assist the user.
+        You have information about the application you live in. Here are its features:
+        - Get Advice: A special chat mode where you act as a supportive friend, communicating in Hinglish.
+        - Chat in Hindi: A chat mode for conversations purely in Hindi, which also supports image analysis. Users can upload a photo and ask questions about it.
+        - IQ Calculator: A fun emoji-based game to test the user's reaction time and calculate a fun IQ score.
+        - Standard Chat: A general-purpose chat powered by Cohere for various questions.
+        - Daily Streak: Users increase their streak by opening the app daily. A 30-day streak can be redeemed for one month of free VIP.
+        - VIP Membership: VIP members get benefits like unlimited voice assistant commands, double the message limits in Advice and Hindi chats, an ad-free experience, and a VIP badge on their profile and the global leaderboard.
+        - You should answer questions about these features clearly and concisely. For general knowledge questions, answer them as a helpful AI. Always maintain a friendly and approachable tone.`;
 
 
     const firebaseConfig = {
@@ -2288,10 +2268,9 @@
     const redeemStreakCount = document.getElementById('redeemStreakCount');
     const redeemStreakButton = document.getElementById('redeemStreakButton');
 
-    // --- NEW/UPDATED VOICE ASSISTANT ELEMENTS ---
+    // --- VOICE ASSISTANT ELEMENTS ---
     const micButton = document.getElementById('micButton');
     const voiceStatus = document.getElementById('voiceStatus');
-    const cornerGlows = document.querySelectorAll('.corner-glow');
     const assistantSettingsBtn = document.getElementById('assistantSettingsBtn');
     const assistantSettingsContainer = document.getElementById('assistantSettingsContainer');
     const voiceCommandLimitDisplay = document.getElementById('voiceCommandLimitDisplay');
@@ -2301,11 +2280,9 @@
     let recognition;
     let synth = window.speechSynthesis;
     
-    // --- ROBUST VOICE ASSISTANT STATE ---
+    // --- VOICE ASSISTANT STATE ---
     let isAssistantOn = false;
     let isSpeaking = false;
-    let isListeningForCommand = false;
-    let commandTimeout;
     let userVoiceLimit = { count: DAILY_VOICE_LIMIT, date: '' };
 
     // =================================================================================
@@ -2752,13 +2729,14 @@
             voiceCommandLimitDisplay.textContent = "Unlimited (VIP Member)";
             assistantUpgradeBtn.style.display = 'none';
         } else {
-            voiceCommandLimitDisplay.textContent = `${userVoiceLimit.count} / ${DAILY_VOICE_LIMIT} remaining`;
+            const usedCommands = DAILY_VOICE_LIMIT - userVoiceLimit.count;
+            voiceCommandLimitDisplay.textContent = `${usedCommands} / ${DAILY_VOICE_LIMIT} used`;
             assistantUpgradeBtn.style.display = userVoiceLimit.count <= 0 ? 'block' : 'none';
         }
     }
 
     // =================================================================================
-    // VOICE ASSISTANT - ROBUST, REFACTORED LOGIC
+    // VOICE ASSISTANT - TAP-TO-TALK LOGIC
     // =================================================================================
 
     function initializeVoiceAssistant() {
@@ -2768,156 +2746,101 @@
         }
 
         recognition = new SpeechRecognition();
-        recognition.continuous = false; // Use non-continuous for better stability on mobile
+        recognition.continuous = false; 
         recognition.lang = 'en-IN';
         recognition.interimResults = false;
 
         recognition.onresult = handleVoiceResult;
-        recognition.onend = handleRecognitionEnd; // Main loop driver
+        recognition.onend = () => {
+             // If the assistant was on but no result was processed (e.g., user said nothing), turn it off.
+             if (isAssistantOn) {
+                 stopAssistant();
+             }
+        };
         recognition.onerror = handleVoiceError;
     }
-
-    function startAssistant() {
-        isAssistantOn = true;
-        micButton.classList.add('active');
-        voiceStatus.classList.add('visible');
-        updateVoiceStatus("Starting...");
-        try {
-            recognition.start();
-        } catch (e) {
-            console.error("Recognition.start() error on initial start:", e);
-        }
-    }
-
-    function stopAssistant() {
-        isAssistantOn = false;
-        isSpeaking = false;
-        isListeningForCommand = false;
-        clearTimeout(commandTimeout);
-        micButton.classList.remove('active');
-        voiceStatus.classList.remove('visible');
-        setCornerGlow(false);
-        try {
-             recognition.stop();
-        } catch(e) {
-            console.error("Recognition.stop() error:", e);
-        }
-        synth.cancel();
-    }
     
-    // This is the main loop for listening
-    function handleRecognitionEnd() {
-        // If the assistant is supposed to be on, and we are not currently speaking,
-        // restart the listening process.
-        if (isAssistantOn && !isSpeaking) {
-            try {
-                recognition.start();
-            } catch (e) {
-                // This can happen if the page is not in focus, etc.
-                console.error("Could not restart recognition in onend loop:", e);
-            }
-        }
-    }
-
     async function toggleAssistant() {
         if (isAssistantOn) {
             stopAssistant();
         } else {
+            // Check limits before starting
             if (!isVipUser) {
-                // Refresh data before starting
                 await processVoiceLimit((await db.ref(`users/${currentUser.uid}`).once('value')).val() || {});
                 if (userVoiceLimit.count <= 0) {
-                    updateVoiceStatus(`Daily limit reached.`);
-                    voiceStatus.classList.add('visible');
-                    speak("Aapki daily voice assistant limit poori ho gayi hai. Unlimited access ke liye VIP membership upgrade karein.");
-                    setTimeout(() => {
-                        if (!isAssistantOn) { // Check if user hasn't turned it on again
-                           voiceStatus.classList.remove('visible');
-                           showInfoPage('assistantSettings');
-                        }
-                    }, 4000);
+                    showInfoPage('assistantSettings');
+                    alert("You've reached your daily voice command limit. Upgrade to VIP for unlimited access!");
                     return;
                 }
             }
             startAssistant();
         }
     }
-    
-    function setCornerGlow(active) {
-        cornerGlows.forEach(glow => {
-            if (active) glow.classList.add('active');
-            else glow.classList.remove('active');
-        });
-    }
 
-    function handleVoiceResult(event) {
-        const transcript = event.results[0][0].transcript.toLowerCase().trim();
-        if (!transcript) return; // Ignore empty results
-        console.log("Heard:", transcript);
-        
-        if (isListeningForCommand) {
-            clearTimeout(commandTimeout);
-            isListeningForCommand = false;
-            setCornerGlow(false);
-            handleCommand(transcript);
-        } else {
-            const hotword = "hey squid";
-            if (transcript.includes(hotword)) {
-                const command = transcript.substring(transcript.indexOf(hotword) + hotword.length).trim();
-                if (command) {
-                    // One-shot command like "Hey Squid what is the time"
-                    handleCommand(command);
-                } else {
-                    // Two-shot command, just the hotword was said
-                    isListeningForCommand = true;
-                    setCornerGlow(true);
-                    speak("Yes?"); // This pauses the listening loop via the isSpeaking flag
-
-                    // Set a timeout to reset if the user doesn't say anything
-                    commandTimeout = setTimeout(() => {
-                        if (isListeningForCommand) {
-                            isListeningForCommand = false;
-                            setCornerGlow(false);
-                            updateVoiceStatus("Command timeout. Waiting for 'Hey Squid'...");
-                        }
-                    }, 8000);
-                }
-            }
+    function startAssistant() {
+        isAssistantOn = true;
+        micButton.classList.add('active');
+        voiceStatus.classList.add('visible');
+        updateVoiceStatus("Listening...");
+        try {
+            recognition.start();
+        } catch (e) {
+            console.error("Recognition.start() error:", e);
+            stopAssistant(); // Turn off if it fails to start
         }
     }
 
-    async function handleCommand(command) {
-        if (!command) return;
+    function stopAssistant() {
+        isAssistantOn = false;
+        isSpeaking = false;
+        micButton.classList.remove('active');
+        voiceStatus.classList.remove('visible');
+        try {
+             recognition.stop();
+        } catch(e) {
+            // Can ignore errors here, e.g., if it was already stopped.
+        }
+        synth.cancel();
+    }
 
+    function handleVoiceResult(event) {
+        const transcript = event.results[0][0].transcript.trim();
+        if (!transcript) { // If result is empty, just stop.
+            stopAssistant();
+            return;
+        }
+        console.log("Heard:", transcript);
+        handleCommand(transcript);
+    }
+
+    async function handleCommand(command) {
         updateVoiceStatus(`Processing: "${command}"`);
 
+        // Decrement limit for non-VIPs
         if (!isVipUser) {
-            if (userVoiceLimit.count <= 0) {
-                speak("You have reached your daily limit for voice commands.");
-                stopAssistant();
-                showInfoPage('assistantSettings');
-                return;
-            }
             userVoiceLimit.count--;
             await db.ref(`users/${currentUser.uid}/voiceAssistant`).set(userVoiceLimit);
             renderAssistantSettingsPage(); // Update UI
         }
 
+        // --- Local Commands (Instant) ---
         let responseText = '';
-        if (command.includes('time')) {
+        const commandLower = command.toLowerCase();
+        if (commandLower.includes('time')) {
             responseText = `The current time is ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        } else if (command.includes('date')) {
+        } else if (commandLower.includes('date')) {
             responseText = `Today is ${new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}`;
-        } else if (command.includes('logout') || command.includes('log out')) {
+        } else if (commandLower.includes('logout') || commandLower.includes('log out')) {
             responseText = 'Okay, logging you out. Goodbye!';
-            speak(responseText);
+            speak(responseText); // This will call stopAssistant on its own.
             setTimeout(() => handleLogout(), 2000);
             return;
         }
-
+        
         if (responseText) {
             speak(responseText);
         } else {
+            // --- AI Commands (with App Knowledge) ---
             updateVoiceStatus("Thinking...");
             await getGeminiVoiceResponse(command);
         }
@@ -2925,11 +2848,13 @@
 
     async function getGeminiVoiceResponse(prompt) {
         try {
+            const systemInstruction = { parts: [{ text: APP_KNOWLEDGE_BASE }] };
             const response = await fetch(GEMINI_API_ENDPOINT_VOICE, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: prompt }] }],
+                    system_instruction: systemInstruction,
                     generationConfig: { temperature: 0.7, topK: 1, topP: 1, maxOutputTokens: 1024 },
                 })
             });
@@ -2944,44 +2869,36 @@
     }
     
     function speak(text) {
-        if (!text) return;
-        isSpeaking = true;
-        
-        // Don't update status for the brief "Yes?" prompt
-        if (!isListeningForCommand) { 
-            updateVoiceStatus("Speaking...");
+        if (!text) {
+            stopAssistant();
+            return;
         }
-
+        isSpeaking = true;
+        updateVoiceStatus("Speaking...");
+        
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-IN';
         utterance.rate = 1;
         utterance.pitch = 1;
         
+        // The key part: Stop the assistant after it finishes speaking
         utterance.onend = () => {
-            isSpeaking = false;
-            // Set correct status before restarting loop
-            if (isListeningForCommand) {
-                 updateVoiceStatus("Listening for your command...");
-            } else {
-                 setCornerGlow(false);
-                 updateVoiceStatus("Waiting for 'Hey Squid'...");
-            }
-            // Manually trigger the end handler to restart the listening loop
-            handleRecognitionEnd();
+            stopAssistant();
         };
         synth.speak(utterance);
     }
     
     function handleVoiceError(event) {
         console.error("Speech Recognition Error:", event.error, event.message);
-        isListeningForCommand = false; // Reset state on any error
-        setCornerGlow(false);
-        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-            speak("I need permission to use the microphone. Please enable it in your browser settings.");
-            stopAssistant();
-        } else if (event.error === 'no-speech') {
-             // This is normal, the onend loop will just restart it.
+        if (event.error === 'no-speech') {
+             updateVoiceStatus("Didn't hear that. Please tap and try again.");
+        } else if (event.error === 'not-allowed') {
+            updateVoiceStatus("Microphone permission denied.");
+        } else {
+            updateVoiceStatus("An error occurred. Please try again.");
         }
+        // Always stop the assistant on error for this model.
+        setTimeout(stopAssistant, 2000);
     }
     
     function updateVoiceStatus(text) {
