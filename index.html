@@ -4,7 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Squid AI - Enhanced Settings</title>
-    
+
+  <style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: auto;
+  }
+</style>
+  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Updated Firebase SDK v9 -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -355,6 +365,48 @@
             transform: scale(1.08);
             background: rgba(157, 77, 255, 0.2);
             box-shadow: 0 0 15px rgba(157, 77, 255, 0.2);
+        }
+
+        /* NEW: Voice Assistant Styles */
+        #micButton.active {
+            color: var(--accent);
+            animation: micGlow 1.5s infinite alternate;
+        }
+        @keyframes micGlow {
+            from { box-shadow: 0 0 5px rgba(0, 224, 208, 0.2), 0 0 10px rgba(0, 224, 208, 0.2); }
+            to { box-shadow: 0 0 20px rgba(0, 224, 208, 0.6), 0 0 30px rgba(0, 224, 208, 0.4); }
+        }
+
+        #voiceStatus {
+            position: absolute;
+            bottom: -100px; /* Initially hidden */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 480px;
+            background: var(--glass-bg);
+            color: var(--text-light);
+            text-align: center;
+            padding: 15px;
+            border-radius: 20px 20px 0 0;
+            z-index: 1001;
+            font-size: 16px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-bottom: none;
+            transition: bottom 0.4s ease-in-out;
+            pointer-events: none;
+        }
+
+        #voiceStatus.visible {
+            bottom: 67px; /* Position above bottom nav */
+        }
+        
+        @media (max-width: 500px) {
+            #voiceStatus.visible {
+                bottom: 60px;
+            }
         }
         
         .content-wrapper {
@@ -1600,7 +1652,6 @@
                 <i class="fas fa-lock"></i>
                 <input type="password" class="login-input" id="passwordInput" placeholder="Password" autocomplete="current-password">
             </div>
-            <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
             <div class="error-message" id="generalError"></div>
             <button class="login-button" id="authButton">Log In</button>
             <div class="form-footer">
@@ -1620,6 +1671,10 @@
                     <span>🔥</span>
                     <span id="streakCount">0</span>
                 </div>
+                <!-- UPDATED: Voice Assistant Mic Button -->
+                <button class="header-icon" id="micButton" title="Activate Voice Assistant">
+                    <i class="fas fa-microphone-alt"></i>
+                </button>
                 <button class="header-icon" id="settingsButton" title="Settings">
                     <i class="fas fa-cog"></i>
                 </button>
@@ -1729,6 +1784,7 @@
                     <h3>Unlock Premium Features!</h3>
                     <p>Upgrade to VIP for the ultimate Squid AI experience.</p>
                     <ul class="vip-feature-list">
+                        <li><i class="fas fa-microphone-alt"></i>Unlimited Voice Assistant use</li>
                         <li><i class="fas fa-trophy"></i>Show your name on global leaderboard</li>
                         <li><i class="fas fa-bolt"></i>2x limit increases on your language</li>
                         <li><i class="fas fa-id-badge"></i>Get VIP badge on your profile</li>
@@ -1800,6 +1856,9 @@
                 <div class="info-content">
                     <p>Welcome to Squid AI! Here's how to make the most of your experience:</p>
                     
+                    <h3>Voice Assistant 🎤</h3>
+                    <p>Tap the microphone icon in the header to activate the assistant. Once active, say <strong>"Hey Squid"</strong> followed by your command. For example: <em>"Hey Squid, what's the time?"</em> or <em>"Hey Squid, tell me a joke."</em> Non-VIP users have a daily limit of 15 voice commands.</p>
+
                     <h3>Daily Streak 🔥</h3>
                     <p>Open the app every day to increase your daily streak. Reach a 30-day streak to redeem a <strong>FREE month of VIP membership!</strong></p>
 
@@ -1826,9 +1885,9 @@
                     <p>To ensure fair usage for everyone:</p>
                     <ul>
                         <li>"Get Advice" and "Chat in Hindi" are limited to 50 messages per day.</li>
-                        <li><strong>VIP Members get 100 messages per day!</strong></li>
+                        <li>Voice Assistant is limited to 15 commands per day.</li>
+                        <li><strong>VIP Members get 2x message limits and unlimited voice commands!</strong></li>
                         <li>Other chats have no daily limits.</li>
-                        <li>IQ game can be played unlimited times.</li>
                     </ul>
                     
                     <button class="back-button" id="backFromHowToUse">
@@ -1853,7 +1912,7 @@
                         <li>Email address and display name for authentication purposes</li>
                         <li>Chat history stored locally on your device</li>
                         <li>Daily message usage counts for limited chats, stored locally</li>
-                        <li>Your daily streak count and VIP status, stored in Firebase to sync across devices.</li>
+                        <li>Your daily streak count, voice assistant usage, and VIP status, stored in Firebase to sync across devices.</li>
                     </ul>
                     
                     <h3>Data Usage</h3>
@@ -1862,7 +1921,7 @@
                         <li>Provide and improve our services</li>
                         <li>Personalize your experience</li>
                         <li>Maintain security and prevent abuse</li>
-                        <li>Manage VIP features like the leaderboard and daily streak.</li>
+                        <li>Manage VIP features like the leaderboard and daily limits.</li>
                     </ul>
                     
                     <div class="highlight-box">
@@ -1873,7 +1932,7 @@
                     <p>All your data is stored securely:</p>
                     <ul>
                         <li>Authentication handled by Firebase</li>
-                        <li>User-specific data (streak, VIP status) stored in Firebase Realtime Database</li>
+                        <li>User-specific data (streak, VIP status, limits) stored in Firebase Realtime Database</li>
                         <li>Chat history and usage limits stored in your browser's local storage</li>
                         <li>Uploaded images are processed temporarily and never stored</li>
                     </ul>
@@ -1994,6 +2053,26 @@
         <div id="adCountdown" class="countdown">8</div>
       </div>
     </div>
+
+    <!-- UPDATED: Voice Assistant Status Bar -->
+    <div id="voiceStatus"></div>
+
+<script>
+  let touchStartY = 0;
+
+  window.addEventListener('touchstart', function (e) {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: false });
+
+  window.addEventListener('touchmove', function (e) {
+    let touchY = e.touches[0].clientY;
+
+    if (touchStartY < 10 && touchY - touchStartY > 20) {
+      e.preventDefault(); // Block pull-to-refresh
+    }
+  }, { passive: false });
+</script>
+
     
 <script>
     // =================================================================================
@@ -2002,13 +2081,24 @@
     const COHERE_API_KEY = "bpSstiCTmvYvzPE396HFKbZABWTA8JfBpkHWMujA";
     const COHERE_API_ENDPOINT = "https://api.cohere.ai/v1/chat";
     
+    // Key for Hinglish Advice Chat
     const GEMINI_API_KEY = "AIzaSyAPACd3ci-fr96Iswt2HqoxStZm0mMCmtc"; 
+    
+    // NEW: Key for Voice Assistant General Conversation
+    const GEMINI_API_KEY_VOICE = "AIzaSyC8gI51M-aVNySn7XaAvyJddNSwjLjTemA";
+
     const GEMINI_MODEL = "gemini-1.5-flash-latest";
-    const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+    const GEMINI_API_ENDPOINT_VOICE = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY_VOICE}`;
+    const GEMINI_API_ENDPOINT_ADVICE = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+    const GEMINI_API_ENDPOINT_HINDI = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
     
     const DAILY_MESSAGE_LIMIT_NORMAL = 50; 
     const DAILY_MESSAGE_LIMIT_VIP = 100;
     const STREAK_REDEEM_GOAL = 30;
+
+    // NEW: Voice Assistant daily limit for non-VIPs
+    const DAILY_VOICE_LIMIT = 15;
+
 
     const firebaseConfig = {
       apiKey: "AIzaSyCnS5bEqwCJHSwUkDbA3gWBRvL3o5OIrrw",
@@ -2130,6 +2220,17 @@
     const redeemStreakCount = document.getElementById('redeemStreakCount');
     const redeemStreakButton = document.getElementById('redeemStreakButton');
 
+    // --- VOICE ASSISTANT REFACTORED LOGIC ---
+    const micButton = document.getElementById('micButton');
+    const voiceStatus = document.getElementById('voiceStatus');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let synth = window.speechSynthesis;
+    let isAssistantOn = false;
+    let isListeningForCommand = false; // NEW state to track if we're waiting for a command after hotword
+    let userVoiceLimit = { count: DAILY_VOICE_LIMIT, date: '' };
+    // --- VOICE ASSISTANT CODE END ---
+
     // =================================================================================
     // App State
     // =================================================================================
@@ -2144,7 +2245,7 @@
     let isVipUser = false;
     let userStreak = 0;
     
-    // RESTORED: Ad Banner State
+    // Ad Banner State
     let adInterval = null;
     let isAdShowing = false;
     let adCountdownTimer = null;
@@ -2179,9 +2280,10 @@
         }
     });
 
-    function initializeAppState() {
+    async function initializeAppState() {
         showApp();
-        fetchAndProcessUserData();
+        await fetchAndProcessUserData(); // This now also fetches voice limit
+        initializeVoiceAssistant(); // Initialize voice assistant after user data is ready
     }
     
     function setupEventListeners() {
@@ -2234,13 +2336,14 @@
             alert('VIP purchasing system is under development. Coming soon! Try redeeming with your daily streak.');
         });
         
-        // RESTORED: Ad unlock button listener
         adUnlockButton.addEventListener('click', () => {
             hideVipAd();
-            showInfoPage('vipMembership'); // Navigate directly to VIP page
+            showInfoPage('vipMembership');
         });
         
         redeemStreakButton.addEventListener('click', redeemVipWithStreak);
+
+        micButton.addEventListener('click', toggleAssistant);
     }
     
     function showLogin() {
@@ -2250,10 +2353,14 @@
         emailInput.value = '';
         passwordInput.value = '';
         clearErrors();
+
+        // Ensure assistant is off on logout
+        if (isAssistantOn) {
+            stopAssistant();
+        }
         
-        // RESTORED: Stop ad on logout
         if (adInterval) clearInterval(adInterval);
-        hideVipAd(); // Ensure ad is hidden if it was showing
+        hideVipAd(); 
         
         isVipUser = false;
         userStreak = 0;
@@ -2340,14 +2447,14 @@
 
             processVipStatus(userData);
             await processUserStreak(userData);
+            await processVoiceLimit(userData); // NEW: Process voice limit
 
             updateVipRelatedUI();
             updateStreakUI();
             
-            // RESTORED: Initialize ad logic based on the now-known VIP status
             if (adInterval) clearInterval(adInterval);
             if (!isVipUser) {
-                adInterval = setInterval(showVipAd, 50000); // Show ad every 50 seconds for non-VIPs
+                adInterval = setInterval(showVipAd, 50000); 
             }
             
         } catch (error) {
@@ -2389,6 +2496,25 @@
             await db.ref(`users/${currentUser.uid}`).update({ streak: currentStreak, lastLoginDate: todayStr });
         }
         userStreak = currentStreak;
+    }
+
+    // UPDATED: Function to handle voice assistant limits from Firebase
+    async function processVoiceLimit(userData) {
+        if (isVipUser) {
+            userVoiceLimit = { count: 999, date: '' }; // Effectively unlimited for VIP
+            return;
+        }
+        const todayStr = new Date().toISOString().split('T')[0];
+        const voiceData = userData.voiceAssistant || {};
+        
+        if (voiceData.date !== todayStr) {
+            // It's a new day, reset the limit
+            userVoiceLimit = { count: DAILY_VOICE_LIMIT, date: todayStr };
+            await db.ref(`users/${currentUser.uid}/voiceAssistant`).set(userVoiceLimit);
+        } else {
+            // It's the same day, use the stored count
+            userVoiceLimit = { count: voiceData.count, date: todayStr };
+        }
     }
     
     // =================================================================================
@@ -2550,6 +2676,253 @@
     }
 
     // =================================================================================
+    // --- VOICE ASSISTANT REFACTORED LOGIC ---
+    // =================================================================================
+
+    function initializeVoiceAssistant() {
+        if (!SpeechRecognition) {
+            console.log("Speech Recognition not supported in this browser.");
+            micButton.style.display = 'none'; // Hide button if not supported
+            return;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.continuous = false; // We will manually restart it for a continuous feel
+        recognition.lang = 'en-IN';
+        recognition.interimResults = false; // We only care about the final result
+
+        recognition.onresult = handleVoiceResult;
+        recognition.onend = handleVoiceEnd;
+        recognition.onerror = handleVoiceError;
+    }
+    
+    function startAssistant() {
+        isAssistantOn = true;
+        isListeningForCommand = false;
+        micButton.classList.add('active');
+        updateVoiceStatus("Waiting for 'Hey Squid'...");
+        voiceStatus.classList.add('visible');
+        try {
+            recognition.start();
+        } catch (e) {
+            console.error("Recognition start error:", e);
+        }
+    }
+
+    function stopAssistant() {
+        isAssistantOn = false;
+        isListeningForCommand = false;
+        micButton.classList.remove('active');
+        voiceStatus.classList.remove('visible');
+        if (recognition) {
+            recognition.stop();
+        }
+        if (synth.speaking) {
+            synth.cancel();
+        }
+    }
+
+    async function toggleAssistant() {
+        if (isAssistantOn) {
+            stopAssistant();
+        } else {
+            // Check limit for non-VIP users before starting
+            if (!isVipUser) {
+                // Refresh limit data from firebase just in case
+                await processVoiceLimit((await db.ref(`users/${currentUser.uid}`).once('value')).val() || {});
+                if (userVoiceLimit.count <= 0) {
+                    updateVoiceStatus(`Daily limit of ${DAILY_VOICE_LIMIT} reached.`);
+                    voiceStatus.classList.add('visible');
+                    speak("Aapki daily voice assistant limit poori ho gayi hai. Unlimited access ke liye VIP membership upgrade karein.");
+                    setTimeout(() => {
+                        voiceStatus.classList.remove('visible');
+                        showInfoPage('vipMembership');
+                    }, 4000);
+                    return;
+                }
+            }
+            startAssistant();
+        }
+    }
+
+    function handleVoiceResult(event) {
+        const transcript = event.results[0][0].transcript.toLowerCase().trim();
+        console.log("Heard:", transcript);
+
+        if (isListeningForCommand) {
+            handleCommand(transcript);
+        } else {
+            const hotword = "hey squid";
+            if (transcript.startsWith(hotword)) {
+                const command = transcript.substring(hotword.length).trim();
+                
+                if (command) {
+                    // Command was said with hotword
+                    handleCommand(command);
+                } else {
+                    // Only hotword was said
+                    isListeningForCommand = true;
+                    speak("Yes?");
+                    updateVoiceStatus("Listening for command...");
+                }
+            }
+        }
+    }
+
+    async function handleCommand(command) {
+        if (!command) {
+            isListeningForCommand = false;
+            return;
+        }
+
+        updateVoiceStatus(`Processing: "${command}"`);
+        isListeningForCommand = false;
+
+        // Decrement limit for non-VIP users only when a valid command is processed
+        if (!isVipUser) {
+            userVoiceLimit.count--;
+            await db.ref(`users/${currentUser.uid}/voiceAssistant`).set(userVoiceLimit);
+            console.log(`Voice limit remaining: ${userVoiceLimit.count}`);
+        }
+
+        let responseText = '';
+
+        // --- Local Commands (Instant) ---
+        if (command.includes('time')) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            responseText = `The current time is ${time}`;
+        } else if (command.includes('date')) {
+            const date = new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+            responseText = `Today is ${date}`;
+        } else if (command.includes('my name')) {
+            responseText = currentUser.displayName ? `Your name is ${currentUser.displayName}` : "You haven't set a name yet. Please set it in your profile.";
+        } else if (command.includes('your name')) {
+            responseText = "My name is Squid AI. It's a pleasure to assist you.";
+        } else if (command.includes('home')) {
+            navigateTo('home');
+            responseText = 'Okay, opening the home page.';
+        } else if (command.includes('setting') || command.includes('settings')) {
+            navigateTo('settings');
+            responseText = 'Opening settings.';
+        } else if (command.includes('iq') || command.includes('calculator')) {
+            navigateTo('game');
+            responseText = "Let's test your IQ! Opening the game.";
+        } else if (command.includes('leaderboard')) {
+            navigateTo('leaderboard');
+            responseText = 'Showing the global leaderboard.';
+        } else if (command.includes('new chat')) {
+            startChat();
+            responseText = 'Starting a new chat for you.';
+        } else if (command.includes('logout') || command.includes('log out')) {
+            responseText = 'Okay, logging you out. Goodbye!';
+            speak(responseText); // Speak before logging out
+            setTimeout(() => handleLogout(), 2000);
+            return; // Stop further execution
+        }
+
+        if (responseText) {
+            speak(responseText);
+        } else {
+            // --- Complex Commands (Gemini AI) ---
+            updateVoiceStatus("Thinking...");
+            getGeminiVoiceResponse(command);
+        }
+    }
+
+    async function getGeminiVoiceResponse(prompt) {
+        try {
+            const response = await fetch(GEMINI_API_ENDPOINT_VOICE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.7, topK: 1, topP: 1, maxOutputTokens: 1024 },
+                })
+            });
+            if (!response.ok) throw new Error(`API Error: ${response.status}`);
+            const data = await response.json();
+            const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            speak(aiReply || "I'm sorry, I couldn't think of a response to that.");
+        } catch (error) {
+            console.error("Gemini Voice API Error:", error);
+            speak("I'm having some trouble connecting to my brain right now. Please try again later.");
+        }
+    }
+
+    function handleVoiceEnd() {
+        // If the assistant is supposed to be ON, just restart the recognition.
+        // This creates the continuous loop.
+        if (isAssistantOn) {
+            try {
+                if (!synth.speaking) { // Don't restart if it's about to speak
+                    recognition.start();
+                }
+            } catch(e){
+                console.error("Error restarting recognition onend:", e);
+            }
+        }
+    }
+
+    function handleVoiceError(event) {
+        console.error("Speech Recognition Error:", event.error);
+        if (event.error === 'no-speech') {
+            // This is fine, it just means no sound was detected. Loop will restart on 'onend'.
+            isListeningForCommand = false; // Reset if it was waiting for a command
+            updateVoiceStatus("Didn't hear that. Waiting for 'Hey Squid'...");
+        } else if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            speak("I need permission to use the microphone. Please enable it in your browser settings.");
+            stopAssistant();
+        } else {
+            isListeningForCommand = false; // Reset on other errors
+        }
+    }
+
+    function speak(text) {
+        if (!text) {
+            // If there's nothing to say, just ensure listening restarts.
+            handleVoiceEnd();
+            return;
+        }
+
+        // The key fix: Pause recognition while speaking
+        if (isAssistantOn) {
+            recognition.stop();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-IN';
+        utterance.rate = 1;
+        utterance.pitch = 1;
+
+        utterance.onstart = () => {
+            console.log("Speaking:", text);
+            updateVoiceStatus("Speaking...");
+        };
+        
+        utterance.onend = () => {
+            console.log("Finished speaking.");
+            // Reset to waiting for hotword state
+            isListeningForCommand = false; 
+            if (isAssistantOn) {
+                updateVoiceStatus("Waiting for 'Hey Squid'...");
+                // The 'onend' of recognition will handle the restart
+            }
+        };
+
+        synth.speak(utterance);
+    }
+    
+    function updateVoiceStatus(text) {
+        if(voiceStatus) {
+            voiceStatus.textContent = text;
+        }
+    }
+
+    // =================================================================================
+    // --- END OF VOICE ASSISTANT REFACTORED LOGIC ---
+    // =================================================================================
+
+    // =================================================================================
     // Leaderboard Functions
     // =================================================================================
     async function fetchAndRenderLeaderboard() {
@@ -2656,7 +3029,7 @@
     }
 
     // =================================================================================
-    // Daily Limit Logic
+    // Daily Limit Logic (for Chat)
     // =================================================================================
     function getLimitData(chatType) {
         if (!currentUser) return { count: 0, date: null };
@@ -2849,7 +3222,7 @@
                 role: msg.sender === 'user' ? "user" : "model",
                 parts: [{ text: msg.text }]
             }));
-            const response = await fetch(GEMINI_API_ENDPOINT, {
+            const response = await fetch(GEMINI_API_ENDPOINT_ADVICE, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -2958,7 +3331,7 @@
             const parts = [];
             if (prompt) parts.push({ text: prompt });
             if (file) parts.push({ inline_data: { mime_type: file.mimeType, data: file.base64.split(',')[1] } });
-            const response = await fetch(GEMINI_API_ENDPOINT, {
+            const response = await fetch(GEMINI_API_ENDPOINT_HINDI, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: parts }] })
@@ -3189,7 +3562,7 @@
     }
     
     // =================================================================================
-    // RESTORED: Ad Banner Logic
+    // Ad Banner Logic
     // =================================================================================
     function initializeAdLogic() {
         const canvas = backgroundCanvas;
@@ -3221,10 +3594,9 @@
         }
         window.addEventListener('resize', () => { if(isAdShowing) { resizeCanvas(); initParticles(); } });
         
-        // Initial setup
         resizeCanvas();
         initParticles();
-        animate(); // Start animation loop
+        animate();
     }
 
     function showVipAd() {
@@ -3233,7 +3605,7 @@
         }
         isAdShowing = true;
         adBannerContainer.style.display = 'flex';
-        initializeAdLogic(); // Start/Restart animation
+        initializeAdLogic(); 
         
         let count = 8;
         adCountdown.textContent = count;
