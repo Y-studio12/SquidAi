@@ -2300,7 +2300,10 @@
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     let synth = window.speechSynthesis;
+    
+    // --- ROBUST VOICE ASSISTANT STATE ---
     let isAssistantOn = false;
+    let isSpeaking = false;
     let isListeningForCommand = false;
     let commandTimeout;
     let userVoiceLimit = { count: DAILY_VOICE_LIMIT, date: '' };
@@ -2713,8 +2716,6 @@
             leaderboardContainer.style.display = 'flex';
             leaderboardNav.classList.add('active');
             fetchAndRenderLeaderboard();
-        } else if (section.startsWith('info-')) {
-             showInfoPage(section.split('-')[1]);
         }
     }
     
@@ -2752,16 +2753,12 @@
             assistantUpgradeBtn.style.display = 'none';
         } else {
             voiceCommandLimitDisplay.textContent = `${userVoiceLimit.count} / ${DAILY_VOICE_LIMIT} remaining`;
-            if (userVoiceLimit.count <= 0) {
-                 assistantUpgradeBtn.style.display = 'block';
-            } else {
-                 assistantUpgradeBtn.style.display = 'none';
-            }
+            assistantUpgradeBtn.style.display = userVoiceLimit.count <= 0 ? 'block' : 'none';
         }
     }
 
     // =================================================================================
-    // VOICE ASSISTANT - REFACTORED LOGIC
+    // VOICE ASSISTANT - ROBUST, REFACTORED LOGIC
     // =================================================================================
 
     function initializeVoiceAssistant() {
@@ -2771,35 +2768,55 @@
         }
 
         recognition = new SpeechRecognition();
-        recognition.continuous = true;
+        recognition.continuous = false; // Use non-continuous for better stability on mobile
         recognition.lang = 'en-IN';
         recognition.interimResults = false;
 
         recognition.onresult = handleVoiceResult;
-        recognition.onend = () => { if (isAssistantOn) recognition.start(); };
+        recognition.onend = handleRecognitionEnd; // Main loop driver
         recognition.onerror = handleVoiceError;
     }
-    
+
     function startAssistant() {
         isAssistantOn = true;
         micButton.classList.add('active');
         voiceStatus.classList.add('visible');
-        updateVoiceStatus("Waiting for 'Hey Squid'...");
+        updateVoiceStatus("Starting...");
         try {
             recognition.start();
         } catch (e) {
-            console.error("Recognition start error:", e);
+            console.error("Recognition.start() error on initial start:", e);
         }
     }
 
     function stopAssistant() {
         isAssistantOn = false;
+        isSpeaking = false;
+        isListeningForCommand = false;
+        clearTimeout(commandTimeout);
         micButton.classList.remove('active');
         voiceStatus.classList.remove('visible');
-        if (recognition) recognition.stop();
-        if (synth.speaking) synth.cancel();
-        clearTimeout(commandTimeout);
         setCornerGlow(false);
+        try {
+             recognition.stop();
+        } catch(e) {
+            console.error("Recognition.stop() error:", e);
+        }
+        synth.cancel();
+    }
+    
+    // This is the main loop for listening
+    function handleRecognitionEnd() {
+        // If the assistant is supposed to be on, and we are not currently speaking,
+        // restart the listening process.
+        if (isAssistantOn && !isSpeaking) {
+            try {
+                recognition.start();
+            } catch (e) {
+                // This can happen if the page is not in focus, etc.
+                console.error("Could not restart recognition in onend loop:", e);
+            }
+        }
     }
 
     async function toggleAssistant() {
@@ -2807,14 +2824,17 @@
             stopAssistant();
         } else {
             if (!isVipUser) {
+                // Refresh data before starting
                 await processVoiceLimit((await db.ref(`users/${currentUser.uid}`).once('value')).val() || {});
                 if (userVoiceLimit.count <= 0) {
                     updateVoiceStatus(`Daily limit reached.`);
                     voiceStatus.classList.add('visible');
                     speak("Aapki daily voice assistant limit poori ho gayi hai. Unlimited access ke liye VIP membership upgrade karein.");
                     setTimeout(() => {
-                        voiceStatus.classList.remove('visible');
-                        showInfoPage('assistantSettings');
+                        if (!isAssistantOn) { // Check if user hasn't turned it on again
+                           voiceStatus.classList.remove('visible');
+                           showInfoPage('assistantSettings');
+                        }
                     }, 4000);
                     return;
                 }
@@ -2831,29 +2851,38 @@
     }
 
     function handleVoiceResult(event) {
-        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+        const transcript = event.results[0][0].transcript.toLowerCase().trim();
+        if (!transcript) return; // Ignore empty results
         console.log("Heard:", transcript);
-        const hotword = "hey squid";
-
+        
         if (isListeningForCommand) {
             clearTimeout(commandTimeout);
-            setCornerGlow(false);
             isListeningForCommand = false;
+            setCornerGlow(false);
             handleCommand(transcript);
-        } else if (transcript.includes(hotword)) {
-            isListeningForCommand = true;
-            speak("Yes?");
-            setCornerGlow(true);
-            updateVoiceStatus("Listening for your command...");
-            
-            clearTimeout(commandTimeout);
-            commandTimeout = setTimeout(() => {
-                if (isListeningForCommand) {
-                    isListeningForCommand = false;
-                    setCornerGlow(false);
-                    updateVoiceStatus("Didn't hear anything. Waiting for 'Hey Squid'...");
+        } else {
+            const hotword = "hey squid";
+            if (transcript.includes(hotword)) {
+                const command = transcript.substring(transcript.indexOf(hotword) + hotword.length).trim();
+                if (command) {
+                    // One-shot command like "Hey Squid what is the time"
+                    handleCommand(command);
+                } else {
+                    // Two-shot command, just the hotword was said
+                    isListeningForCommand = true;
+                    setCornerGlow(true);
+                    speak("Yes?"); // This pauses the listening loop via the isSpeaking flag
+
+                    // Set a timeout to reset if the user doesn't say anything
+                    commandTimeout = setTimeout(() => {
+                        if (isListeningForCommand) {
+                            isListeningForCommand = false;
+                            setCornerGlow(false);
+                            updateVoiceStatus("Command timeout. Waiting for 'Hey Squid'...");
+                        }
+                    }, 8000);
                 }
-            }, 8000);
+            }
         }
     }
 
@@ -2871,7 +2900,7 @@
             }
             userVoiceLimit.count--;
             await db.ref(`users/${currentUser.uid}/voiceAssistant`).set(userVoiceLimit);
-            console.log(`Voice limit remaining: ${userVoiceLimit.count}`);
+            renderAssistantSettingsPage(); // Update UI
         }
 
         let responseText = '';
@@ -2913,37 +2942,52 @@
             speak("I'm having some trouble connecting to my brain right now. Please try again later.");
         }
     }
-
-    function handleVoiceError(event) {
-        console.error("Speech Recognition Error:", event.error);
-        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-            speak("I need permission to use the microphone. Please enable it in your browser settings.");
-            stopAssistant();
-        } else {
-            isListeningForCommand = false;
-            setCornerGlow(false);
-        }
-    }
-
+    
     function speak(text) {
         if (!text) return;
-        recognition.stop();
+        isSpeaking = true;
+        
+        // Don't update status for the brief "Yes?" prompt
+        if (!isListeningForCommand) { 
+            updateVoiceStatus("Speaking...");
+        }
+
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-IN';
         utterance.rate = 1;
         utterance.pitch = 1;
-
-        utterance.onstart = () => updateVoiceStatus("Speaking...");
+        
         utterance.onend = () => {
-            updateVoiceStatus("Waiting for 'Hey Squid'...");
-            if (isAssistantOn) recognition.start();
+            isSpeaking = false;
+            // Set correct status before restarting loop
+            if (isListeningForCommand) {
+                 updateVoiceStatus("Listening for your command...");
+            } else {
+                 setCornerGlow(false);
+                 updateVoiceStatus("Waiting for 'Hey Squid'...");
+            }
+            // Manually trigger the end handler to restart the listening loop
+            handleRecognitionEnd();
         };
         synth.speak(utterance);
+    }
+    
+    function handleVoiceError(event) {
+        console.error("Speech Recognition Error:", event.error, event.message);
+        isListeningForCommand = false; // Reset state on any error
+        setCornerGlow(false);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            speak("I need permission to use the microphone. Please enable it in your browser settings.");
+            stopAssistant();
+        } else if (event.error === 'no-speech') {
+             // This is normal, the onend loop will just restart it.
+        }
     }
     
     function updateVoiceStatus(text) {
         if(voiceStatus) voiceStatus.textContent = text;
     }
+
 
     // =================================================================================
     // Leaderboard Functions
